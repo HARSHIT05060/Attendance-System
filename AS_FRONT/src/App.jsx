@@ -1,12 +1,13 @@
 import './App.css'
+import LeaveApplication from './pages/LeaveApplication'
+import LeaveApprove from './pages/LeaveApprove'
 
 function App() {
 
   return (
     <>
-      <h1 className="text-3xl font-bold underline">
-      Hello world!
-    </h1>
+    <LeaveApprove/>
+      {/* <LeaveApplication/> */}
     </>
   )
 }
