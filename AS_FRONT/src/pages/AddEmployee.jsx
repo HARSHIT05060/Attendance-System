@@ -116,12 +116,9 @@ const shiftOptions = [
 
 // Department options
 const departmentOptions = [
-    { value: 'engineering', label: 'Engineering' },
-    { value: 'finance', label: 'Finance' },
-    { value: 'hr', label: 'Human Resources' },
-    { value: 'marketing', label: 'Marketing' },
-    { value: 'operations', label: 'Operations' },
-    { value: 'sales', label: 'Sales' }
+    { value: 'RCB', label: 'RCB' },
+    { value: 'MI', label: 'MI' },
+    { value: 'CSK', label: 'CSK' }  
 ];
 
 const AddEmployee = () => {
