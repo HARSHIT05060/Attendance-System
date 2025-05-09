@@ -42,7 +42,61 @@ const getEmployeeById = async (req, res) => {
     }
 };
 
+// Update an employee by ID
+const updateEmployee = async (req, res) => {
+    const { id } = req.params;               // Extract employee ID from request params
+    const updatedEmployee = req.body;        // Get the updated employee data from the request body
+
+    try {
+        // Find the employee by ID and update with the new data
+        const employee = await Employee.findByIdAndUpdate(id, updatedEmployee, { new: true });
+
+        if (!employee) {
+            return res.status(404).json({ message: 'Employee not found' }); // Handle case if employee is not found
+        }
+
+        // Return the updated employee data as the response
+        res.json(employee);
+    } catch (error) {
+        console.error('Error updating employee:', error);
+        res.status(500).json({ message: 'Failed to update employee data' }); // Handle internal server errors
+    }
+};
+// Delete an employee by ID
+const deleteEmployee = async (req, res) => {
+    const { id } = req.params;
+
+    try {
+        const employee = await Employee.findByIdAndDelete(id);
+
+        if (!employee) {
+            return res.status(404).json({ message: 'Employee not found' });
+        }
+
+        res.json({ message: 'Employee deleted successfully' });
+    } catch (error) {
+        console.error('Error deleting employee:', error);
+        res.status(500).json({ message: 'Failed to delete employee' });
+    }
+};
+
+
+// create a new employee
+const createEmployee = async (req, res) => {
+    try {
+        const newEmployee = new Employee(req.body);
+        const savedEmployee = await newEmployee.save();
+        res.status(201).json(savedEmployee);
+    } catch (error) {
+        console.error('Error creating employee:', error);
+        res.status(500).json({ message: 'Failed to create employee' });
+    }
+};
+
 module.exports = {
     getAllEmployees,
-    getEmployeeById
+    getEmployeeById,
+    updateEmployee,
+    deleteEmployee,
+    createEmployee
 };
