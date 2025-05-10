@@ -118,6 +118,8 @@ const shiftOptions = [
 const departmentOptions = [
     { value: 'RCB', label: 'RCB' },
     { value: 'MI', label: 'MI' },
+    { value: 'KKR', label: 'KKR' },
+    { value: 'SRH', label: 'SRH' },
     { value: 'CSK', label: 'CSK' }  
 ];
 

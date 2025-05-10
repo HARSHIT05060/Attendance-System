@@ -3,6 +3,7 @@ const dotenv = require('dotenv');
 const cors = require('cors');
 const connectDB = require('./config/db');  // Correct path to db.js
 const employeeRoutes = require('./routes/employeeRoutes'); // Correct path to employeeRoutes.js
+const leaveRoutes = require('./routes/leaveRoutes');
 
 dotenv.config(); // Load environment variables
 
@@ -21,6 +22,11 @@ app.use(express.json());
 
 // Use employee routes
 app.use('/api', employeeRoutes);
+
+// Use leave routes
+app.use('/api', leaveRoutes);
+
+app.use('/api/leaves', leaveRoutes);
 
 // Start the server
 app.listen(5000, () => {

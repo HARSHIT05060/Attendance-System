@@ -1,199 +1,204 @@
-import * as React from "react";
-import { Button, Popover, Dialog, DialogTitle, DialogContent } from "@mui/material";
-import TextareaAutosize from "@mui/material/TextareaAutosize";
-import { styled } from "@mui/system";
-import Input from "@mui/material/Input";
-import dayjs from 'dayjs';
-import { DemoContainer } from '@mui/x-date-pickers/internals/demo';
-import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
-import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
-import { DatePicker } from '@mui/x-date-pickers/DatePicker';
+import React, { useState } from 'react';
+import axios from 'axios';
 
-export default function LeaveApplication() {
-    
-    const [anchorEl, setAnchorEl] = React.useState(null);
-    const [value, setValue] = React.useState(dayjs());
-    const [reason, setReason] = React.useState("");
-    const [detailedReason, setDetailedReason] = React.useState("");
-    const [applications, setApplications] = React.useState([]);
-    const [selectedApp, setSelectedApp] = React.useState(null); // for modal
 
-    const handleClick = (event) => setAnchorEl(event.currentTarget);
-    const handleClose = () => setAnchorEl(null);
-    const open = Boolean(anchorEl);
-    const id = open ? "leave-popover" : undefined;
+const LeaveApplication = () => {
+    const [formData, setFormData] = useState({
+        employee_id: '',
+        employee_name: '',
+        leave_type: 'Sick',
+        start_date: '',
+        end_date: '',
+        reason: ''
+    });
 
-    const handleSubmit = () => {
-        if (!reason) {
-            alert("Please enter a reason for leave.");
-            return;
+    const [isSubmitting, setIsSubmitting] = useState(false);
+    const [notification, setNotification] = useState({ show: false, type: '', message: '' });
+
+    const handleChange = (e) => {
+        const { name, value } = e.target;
+        setFormData({ ...formData, [name]: value });
+    };
+
+    const handleSubmit = async (e) => {
+        e.preventDefault();
+        setIsSubmitting(true);
+
+        try {
+            const response = await axios.post('http://localhost:5000/api/leaves', formData);
+
+            setNotification({
+                show: true,
+                type: 'success',
+                message: response.data.message || 'Leave request submitted successfully!'
+            });
+
+            setFormData({
+                employee_id: '',
+                employee_name: '',
+                leave_type: 'Sick',
+                start_date: '',
+                end_date: '',
+                reason: ''
+            });
+        } catch (error) {
+            setNotification({
+                show: true,
+                type: 'error',
+                message: error.response?.data?.message || 'Failed to submit leave request'
+            });
+        } finally {
+            setIsSubmitting(false);
+            setTimeout(() => {
+                setNotification({ show: false, type: '', message: '' });
+            }, 5000);
         }
-
-        const newApplication = {
-            reason,
-            detailedReason,
-            startDate: dayjs(),
-            endDate: value,
-            status: "Pending",
-        };
-
-        setApplications([...applications, newApplication]);
-        setReason("");
-        setDetailedReason("");
-        setValue(dayjs());
-        handleClose();
     };
 
 
     return (
-        <>
-            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', padding: "20px" }}>
-                <Button variant="contained" onClick={handleClick}>
-                    Leave Application
-                </Button>
-                <Popover
-                    id={id}
-                    open={open}
-                    anchorEl={anchorEl}
-                    onClose={handleClose}
-                    anchorOrigin={{
-                        vertical: 'bottom',
-                        horizontal: 'center',
-                    }}
-                    transformOrigin={{
-                        vertical: 'top',
-                        horizontal: 'center',
-                    }}
-                    PaperProps={{
-                        style: {
-                            padding: "20px",
-                            borderRadius: "12px",
-                            width: "600px",
-                            maxWidth: "100%",
-                        },
-                    }}
-                >
-                    <CustomInput
-                        placeholder="Reason For Leave"
-                        value={reason}
-                        onChange={(e) => setReason(e.target.value)}
-                        sx={{ marginBottom: "16px" }}
-                    />
-                    <CustomTextarea
-                        placeholder="Write in-detailed reason for your leave application!"
-                        value={detailedReason}
-                        onChange={(e) => setDetailedReason(e.target.value)}
-                    />
-                    <LocalizationProvider dateAdapter={AdapterDayjs}>
-                        <DemoContainer components={["DatePicker", "DatePicker"]}>
-                            <DatePicker
-                                label="Start Date"
-                                defaultValue={dayjs()}
-                                sx={{ marginBottom: "16px", width: "70%" }}
-                            />
-                            <DatePicker
-                                label="End Date"
-                                value={value}
-                                onChange={(newValue) => setValue(newValue)}
-                                sx={{ width: "70%" }}
-                            />
-                        </DemoContainer>
-                    </LocalizationProvider>
-                    <SubmitButton onClick={handleSubmit}>Submit</SubmitButton>
-                </Popover>
-            </div>
+        <div className="max-w-2xl mx-auto px-4 py-8 w-full">
+            <div className="bg-white shadow-lg rounded-lg overflow-hidden">
+                <div className="bg-blue-600 py-4 px-6">
+                    <h2 className="text-xl font-bold text-white">Apply for Leave</h2>
+                </div>
 
-            {/* Display leave applications */}
-            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', flexDirection: 'column', padding: "20px" }}>
-                <h3>Submitted Leave Applications</h3>
-                {applications.length === 0 ? (
-                    <p>No leave applications submitted yet.</p>
-                ) : (
-                    <ul style={{ listStyle: 'none', padding: 20, width: '80%' }}>
-                        {applications.map((app, index) => (
-                            <li
-                                key={index}
-                                style={{
-                                    marginBottom: '16px',
-                                    padding: '16px',
-                                    borderRadius: '12px',
-                                    boxShadow: '0 2px 8px rgba(0, 0, 0, 0.1)',
-                                    backgroundColor: '#f9f9f9',
-                                    transition: 'transform 0.2s ease',
-                                    cursor: 'pointer',
-                                }}
-                                onClick={() => setSelectedApp(app)}
-                                onMouseEnter={(e) => e.currentTarget.style.transform = 'scale(1.02)'}
-                                onMouseLeave={(e) => e.currentTarget.style.transform = 'scale(1.0)'}
-                            >
-                                <div style={{ fontSize: '16px', fontWeight: 500, color: '#333' }}>
-                                    📝 <strong>Reason:</strong> {app.reason.length > 50 ? `${app.reason.substring(0, 50)}...` : app.reason}
-                                </div>
-                                <div style={{ marginTop: '8px', fontSize: '14px', color: '#555' }}>
-                                    📌 <strong>Status:</strong>
-                                    <span style={{
-                                        marginLeft: '8px',
-                                        color:
-                                            app.status === 'Approved' ? 'green' :
-                                                app.status === 'Not Approved' ? 'red' :
-                                                    '#f57c00', // Pending = orange
-                                        fontWeight: 600,
-                                    }}>
-                                        {app.status}
-                                    </span>
-                                </div>
-                            </li>
-                        ))}
-                    </ul>
+                {notification.show && (
+                    <div className={`px-6 py-3 mt-4 text-sm font-medium rounded-md ${notification.type === 'success'
+                            ? 'bg-green-100 text-green-700'
+                            : 'bg-red-100 text-red-700'
+                        }`}>
+                        {notification.message}
+                    </div>
                 )}
+
+                <div className="p-6 space-y-6">
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div className="space-y-2">
+                            <label className="block text-sm font-medium text-gray-700">
+                                Employee ID
+                            </label>
+                            <input
+                                type="text"
+                                name="employee_id"
+                                value={formData.employee_id}
+                                onChange={handleChange}
+                                required
+                                className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                                placeholder="Enter your ID"
+                            />
+                        </div>
+
+                        <div className="space-y-2">
+                            <label className="block text-sm font-medium text-gray-700">
+                                Employee Name
+                            </label>
+                            <input
+                                type="text"
+                                name="employee_name"
+                                value={formData.employee_name}
+                                onChange={handleChange}
+                                required
+                                className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                                placeholder="Enter your full name"
+                            />
+                        </div>
+                    </div>
+
+                    <div className="space-y-2">
+                        <label className="block text-sm font-medium text-gray-700">
+                            Leave Type
+                        </label>
+                        <select
+                            name="leave_type"
+                            value={formData.leave_type}
+                            onChange={handleChange}
+                            required
+                            className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                        >
+                            <option value="Sick">Sick Leave</option>
+                            <option value="Casual">Casual Leave</option>
+                            <option value="Emergency">Emergency Leave</option>
+                            <option value="Annual">Annual Leave</option>
+                            <option value="Maternity">Maternity/Paternity Leave</option>
+                        </select>
+                    </div>
+
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div className="space-y-2">
+                            <label className="block text-sm font-medium text-gray-700">
+                                Start Date
+                            </label>
+                            <input
+                                type="date"
+                                name="start_date"
+                                value={formData.start_date}
+                                onChange={handleChange}
+                                required
+                                className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                            />
+                        </div>
+
+                        <div className="space-y-2">
+                            <label className="block text-sm font-medium text-gray-700">
+                                End Date
+                            </label>
+                            <input
+                                type="date"
+                                name="end_date"
+                                value={formData.end_date}
+                                onChange={handleChange}
+                                required
+                                className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                            />
+                        </div>
+                    </div>
+
+                    <div className="space-y-2">
+                        <label className="block text-sm font-medium text-gray-700">
+                            Reason for Leave
+                        </label>
+                        <textarea
+                            name="reason"
+                            value={formData.reason}
+                            onChange={handleChange}
+                            required
+                            rows="4"
+                            className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                            placeholder="Please provide details about your leave request"
+                        />
+                    </div>
+
+                    <div className="flex items-center justify-end pt-4">
+                        <button
+                            type="button"
+                            className="mr-4 px-4 py-2 text-sm font-medium text-gray-700 bg-gray-100 hover:bg-gray-200 rounded-md focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-500"
+                            onClick={() => {
+                                setFormData({
+                                    employee_id: '',
+                                    employee_name: '',
+                                    leave_type: 'Sick',
+                                    start_date: '',
+                                    end_date: '',
+                                    reason: ''
+                                });
+                            }}
+                        >
+                            Reset
+                        </button>
+                        <button
+                            type="button"
+                            onClick={handleSubmit}
+                            className="px-6 py-2 text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 rounded-md focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 disabled:opacity-50 disabled:cursor-not-allowed"
+                            disabled={isSubmitting}
+                        >
+                            {isSubmitting ? 'Submitting...' : 'Submit Request'}
+                        </button>
+                    </div>
+                </div>
             </div>
-
-            {/* Modal for detailed view */}
-            <Dialog open={Boolean(selectedApp)} onClose={() => setSelectedApp(null)}>
-                <DialogTitle>Leave Application Details</DialogTitle>
-                <DialogContent>
-                    {selectedApp && (
-                        <>
-                            <p><strong>Reason:</strong> {selectedApp.reason}</p>
-                            <p><strong>Start Date:</strong> {selectedApp.startDate.format("DD-MM-YYYY")}</p>
-                            <p><strong>End Date:</strong> {selectedApp.endDate.format("DD-MM-YYYY")}</p>
-                            <p><strong>In-detailed Reason:</strong> {selectedApp.detailedReason || "N/A"}</p>
-                        </>
-                    )}
-                </DialogContent>
-            </Dialog>
-        </>
+        </div>
     );
-}
+};
 
-const CustomInput = styled(Input)`
-  width: 400px;
-  padding: 8px 12px;
-  border: 1px solid #ccc;
-  border-radius: 8px;
-`;
-
-const CustomTextarea = styled(TextareaAutosize)`
-  width: 350px;
-  padding: 8px 12px;
-  font-family: 'IBM Plex Sans', sans-serif;
-  border-radius: 8px;
-  border: 1px solid #ccc;
-  margin-bottom: 16px;
-  &:focus {
-    border-color: #3399FF;
-    outline: none;
-  }
-`;
-
-const SubmitButton = styled(Button)`
-  margin-top: 16px;
-  background-color: #3399FF;
-  color: white;
-  border-radius: 8px;
-  padding: 10px 20px;
-  width: 100%;
-  &:hover {
-    background-color: #007FFF;
-  }
-`;
+export default LeaveApplication;
