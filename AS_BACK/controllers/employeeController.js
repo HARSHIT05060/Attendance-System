@@ -1,4 +1,17 @@
 const Employee = require('../models/Employee');
+const nodemailer = require('nodemailer');
+const generatePassword = require('generate-password');
+const bcrypt = require('bcrypt');
+require('dotenv').config();
+
+// Email setup
+const transporter = nodemailer.createTransport({
+    service: process.env.SMTP_SERVICE,
+    auth: {
+        user: process.env.SMTP_USER,
+        pass: process.env.SMTP_PASS
+    }
+});
 
 // Get all employees (summary)
 const getAllEmployees = async (req, res) => {
@@ -24,6 +37,7 @@ const getEmployeeById = async (req, res) => {
             fullName: employee.fullName,
             employeeId: employee.employeeId,
             email: employee.email,
+            personalEmail: employee.personalEmail,
             phoneNumber: employee.phoneNumber,
             designation: employee.designation,
             department: employee.department,
@@ -81,17 +95,92 @@ const deleteEmployee = async (req, res) => {
 };
 
 
-// create a new employee
+// Create a new employee
 const createEmployee = async (req, res) => {
     try {
-        const newEmployee = new Employee(req.body);
+        const {
+            fullName,
+            employeeId,
+            personalEmail,
+            phoneNumber,
+            designation,
+            department,
+            salary,
+            status,
+            shift,
+            bankAccountDetails,
+            joiningDate,
+            biometricFaceRecognition,
+            biometricFingerprint,
+            photo
+        } = req.body;
+
+        if (!fullName || !personalEmail) {
+            return res.status(400).json({ message: 'Full name and personal email are required.' });
+        }
+
+        // 1) Company email
+        const companyEmail = `ezee.${fullName.replace(/\s+/g, '').toLowerCase()}@gmail.com`;
+
+        // 2) Generate & hash password
+        const plainPassword = generatePassword.generate({
+            length: 10,
+            numbers: true,
+            symbols: true,
+            uppercase: true,
+            lowercase: true,
+            strict: true
+        });
+        const passwordHash = await bcrypt.hash(plainPassword, 10);
+
+        // 3) Create and save Employee
+        const newEmployee = new Employee({
+            fullName,
+            employeeId,
+            personalEmail,
+            email: companyEmail,
+            passwordHash,
+            phoneNumber,
+            designation,
+            department,
+            salary,
+            status,
+            shift,
+            bankAccountDetails,
+            joiningDate,
+            biometricFaceRecognition,
+            biometricFingerprint,
+            photo
+        });
         const savedEmployee = await newEmployee.save();
+
+        // 4) Send credentials to personal email
+        const mailOptions = {
+            from: 'yourcompany@gmail.com',
+            to: personalEmail,
+            subject: 'Welcome to Ezee – Your Account Credentials',
+            html: `
+        <p>Hello ${fullName},</p>
+        <p>Your Ezee account has been created. Here are your login details:</p>
+        <ul>
+          <li><strong>Company Email:</strong> ${companyEmail}</li>
+          <li><strong>Password:</strong> ${plainPassword}</li>
+        </ul>
+        <p>Please log in at <a href="https://yourcompany.com/login">https://yourcompany.com/login</a> and change your password immediately.</p>
+        <p>Regards,<br/>Ezee HR Team</p>
+      `
+        };
+        await transporter.sendMail(mailOptions);
+
+        // 5) Respond
         res.status(201).json(savedEmployee);
+
     } catch (error) {
         console.error('Error creating employee:', error);
         res.status(500).json({ message: 'Failed to create employee' });
     }
 };
+
 
 module.exports = {
     getAllEmployees,

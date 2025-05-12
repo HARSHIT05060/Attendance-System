@@ -292,10 +292,9 @@ const EmployeeDetail = () => {
                                             />
                                         </div>
                                     </div>
-
-                                    {/* Email */}
+                                    {/* Company Email */}
                                     <div>
-                                        <label className="block text-sm font-medium text-gray-700 mb-1">Email</label>
+                                        <label className="block text-sm font-medium text-gray-700 mb-1">Company Email</label>
                                         <div className="relative">
                                             <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
                                                 <Mail size={16} className="text-gray-400" />
@@ -304,6 +303,25 @@ const EmployeeDetail = () => {
                                                 type="email"
                                                 value={employee.email || ''}
                                                 onChange={(e) => handleInputChange('email', e.target.value)}
+                                                disabled={!isEditing}
+                                                className={`pl-10 block w-full shadow-sm rounded-md py-2 px-3 border ${isEditing
+                                                        ? 'border-gray-300 focus:ring-blue-500 focus:border-blue-500'
+                                                        : 'border-gray-200 bg-gray-50 text-gray-600'
+                                                    }`}
+                                            />
+                                        </div>
+                                    </div>
+                                    {/* Email */}
+                                    <div>
+                                        <label className="block text-sm font-medium text-gray-700 mb-1">Personal Email</label>
+                                        <div className="relative">
+                                            <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                                                <Mail size={16} className="text-gray-400" />
+                                            </div>
+                                            <input
+                                                type="email"
+                                                value={employee.personalEmail || ''}
+                                                onChange={(e) => handleInputChange('personalEmail', e.target.value)}
                                                 disabled={!isEditing}
                                                 className={`pl-10 block w-full shadow-sm rounded-md py-2 px-3 border ${isEditing
                                                     ? 'border-gray-300 focus:ring-blue-500 focus:border-blue-500'

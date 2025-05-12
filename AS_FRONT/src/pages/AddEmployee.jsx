@@ -137,7 +137,7 @@ const handleNavigation = (path) => {
     const [formData, setFormData] = useState({
         fullName: '',
         employeeId: '',
-        email: '',
+        personalEmail: '',
         phoneNumber: '',
         designation: '',
         department: '',
@@ -234,9 +234,9 @@ const handleNavigation = (path) => {
                             <TextField
                                 fullWidth
                                 label="Email"
-                                name="email"
+                                name="personalEmail"
                                 type="email"
-                                value={formData.email}
+                                value={formData.personalEmail}
                                 onChange={handleChange}
                                 required
                                 variant="outlined"
