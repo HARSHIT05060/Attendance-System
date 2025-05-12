@@ -1,117 +1,11 @@
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
-import {
-    Box,
-    Tabs,
-    Tab,
-    Typography,
-    Card,
-    CardContent,
-    Button,
-    TextField,
-    Dialog,
-    DialogActions,
-    DialogContent,
-    DialogTitle,
-    Chip,
-    Grid,
-    Paper,
-    Divider,
-    Snackbar,
-    Alert,
-    AlertTitle
-} from '@mui/material';
-import {
-    AccessTime as AccessTimeIcon,
-    CheckCircle as ApprovedIcon,
-    Cancel as RejectedIcon,
-    CalendarToday as CalendarIcon,
-    Visibility as ViewIcon
-} from '@mui/icons-material';
-
-// Style object - make sure to include this
-const styles = {
-    pageContainer: {
-        padding: '24px',
-        backgroundColor: '#f5f5f5',
-        minHeight: '100vh'
-    },
-    header: {
-        marginBottom: '24px'
-    },
-    tabsContainer: {
-        backgroundColor: '#fff',
-        borderRadius: '8px',
-        boxShadow: '0 2px 4px rgba(0,0,0,0.1)',
-        marginBottom: '24px'
-    },
-    indicator: {
-        backgroundColor: '#1976d2'
-    },
-    leaveCard: {
-        marginBottom: '16px',
-        transition: 'transform 0.2s',
-        "&:hover": {
-            transform: 'translateY(-4px)',
-            boxShadow: '0 8px 16px rgba(0,0,0,0.1)'
-        }
-    },
-    cardHeader: {
-        display: 'flex',
-        justifyContent: 'space-between',
-        alignItems: 'flex-start',
-        marginBottom: '16px'
-    },
-    cardInfo: {
-        marginBottom: '16px'
-    },
-    pendingChip: {
-        backgroundColor: '#fff9c4',
-        color: '#fbc02d'
-    },
-    approvedChip: {
-        backgroundColor: '#e8f5e9',
-        color: '#4caf50'
-    },
-    rejectedChip: {
-        backgroundColor: '#ffebee',
-        color: '#f44336'
-    },
-    infoRow: {
-        display: 'flex',
-        alignItems: 'center',
-        marginBottom: '8px'
-    },
-    actionButtons: {
-        marginTop: '16px'
-    },
-    viewButton: {
-        marginRight: '8px'
-    },
-    rejectButton: {
-        backgroundColor: '#f44336',
-        marginRight: '8px',
-        "&:hover": {
-            backgroundColor: '#d32f2f'
-        }
-    },
-    approveButton: {
-        backgroundColor: '#4caf50',
-        "&:hover": {
-            backgroundColor: '#388e3c'
-        }
-    },
-    noData: {
-        textAlign: 'center',
-        padding: '48px'
-    },
-    reasonContainer: {
-        backgroundColor: '#f5f5f5',
-        padding: '12px',
-        borderRadius: '4px',
-        marginTop: '8px'
-    }
-};
+// MUI Icons
+import AccessTimeIcon from '@mui/icons-material/AccessTime';
+import CheckCircleIcon from '@mui/icons-material/CheckCircle';
+import CancelIcon from '@mui/icons-material/Cancel';
+import CalendarTodayIcon from '@mui/icons-material/CalendarToday';
+import VisibilityIcon from '@mui/icons-material/Visibility';
 
 const LeaveStatusPage = () => {
     const [leaveRequests, setLeaveRequests] = useState([]);
@@ -146,15 +40,8 @@ const LeaveStatusPage = () => {
     }, [leaveRequests, selectedStatus]);
 
     // Handle tab change
-    const handleTabChange = (event, newValue) => {
-        setTabValue(newValue);
-        // Map tab value to status
-        const statusMap = {
-            0: 'Pending',
-            1: 'Approved',
-            2: 'Rejected'
-        };
-        const status = statusMap[newValue];
+    const handleTabChange = (status, tabIndex) => {
+        setTabValue(tabIndex);
         setSelectedStatus(status);
     };
 
@@ -173,10 +60,7 @@ const LeaveStatusPage = () => {
     };
 
     // Handle snackbar close
-    const handleCloseSnackbar = (event, reason) => {
-        if (reason === 'clickaway') {
-            return;
-        }
+    const handleCloseSnackbar = () => {
         setSnackbar({ ...snackbar, open: false });
     };
 
@@ -232,19 +116,24 @@ const LeaveStatusPage = () => {
 
         axios.put(`http://localhost:5000/api/leaves/${selectedLeave._id}`, {
             status: 'Rejected',
-            reason: rejectionReason
+            reason: rejectionReason  // Sending rejection reason to the backend
         })
             .then(response => {
+                // Update state with the rejection reason in the response
                 setSnackbar({
                     open: true,
                     message: 'Leave request rejected successfully!',
                     severity: 'success'
                 });
                 setLeaveRequests(leaveRequests.map(leave =>
-                    leave._id === selectedLeave._id ? { ...leave, status: 'Rejected', reason: rejectionReason } : leave
+                    leave._id === selectedLeave._id ? {
+                        ...leave,
+                        status: 'Rejected',
+                        rejectionReason: rejectionReason // Updating with rejection reason
+                    } : leave
                 ));
-                setRejectionReason('');
-                setSelectedLeave(null);
+                setRejectionReason('');  // Clear the rejection reason input
+                setSelectedLeave(null);  // Clear selected leave
             })
             .catch(error => {
                 console.error("Error rejecting leave request:", error);
@@ -260,23 +149,26 @@ const LeaveStatusPage = () => {
     const getStatusChip = (status) => {
         switch (status) {
             case 'Pending':
-                return <Chip
-                    icon={<AccessTimeIcon />}
-                    label="Pending"
-                    sx={styles.pendingChip}
-                />;
+                return (
+                    <div className="flex items-center bg-yellow-100 text-yellow-600 px-2 py-1 rounded-full text-sm">
+                        <AccessTimeIcon className="h-4 w-4 mr-1" />
+                        <span>Pending</span>
+                    </div>
+                );
             case 'Approved':
-                return <Chip
-                    icon={<ApprovedIcon />}
-                    label="Approved"
-                    sx={styles.approvedChip}
-                />;
+                return (
+                    <div className="flex items-center bg-green-100 text-green-600 px-2 py-1 rounded-full text-sm">
+                        <CheckCircleIcon className="h-4 w-4 mr-1" />
+                        <span>Approved</span>
+                    </div>
+                );
             case 'Rejected':
-                return <Chip
-                    icon={<RejectedIcon />}
-                    label="Rejected"
-                    sx={styles.rejectedChip}
-                />;
+                return (
+                    <div className="flex items-center bg-red-100 text-red-600 px-2 py-1 rounded-full text-sm">
+                        <CancelIcon className="h-4 w-4 mr-1" />
+                        <span>Rejected</span>
+                    </div>
+                );
             default:
                 return null;
         }
@@ -287,275 +179,289 @@ const LeaveStatusPage = () => {
         return Math.ceil((new Date(endDate) - new Date(startDate)) / (1000 * 60 * 60 * 24)) + 1;
     };
 
+    // Render leave card - consistent across all statuses
+    const renderLeaveCard = (leave) => (
+        <div className="w-full md:w-1/3 px-3 mb-6" key={leave._id}>
+            <div className="bg-white rounded-lg shadow-md transition-all duration-300 hover:shadow-lg hover:-translate-y-1 h-full flex flex-col">
+                <div className="p-4 flex flex-col flex-grow">
+                    <div className="flex justify-between items-start mb-4">
+                        <div className="w-2/3">
+                            <h2 className="text-lg font-medium text-gray-800 truncate">{leave.employee_name}</h2>
+                            <p className="text-sm text-gray-500">{leave.leave_type}</p>
+                        </div>
+                        {getStatusChip(leave.status)}
+                    </div>
+
+                    <hr className="my-4" />
+
+                    <div className="mb-4">
+                        <div className="flex items-center mb-2">
+                            <CalendarTodayIcon className="h-4 w-4 mr-2 text-gray-500" />
+                            <p className="text-sm">
+                                <span className="font-medium">Start:</span> {new Date(leave.start_date).toLocaleDateString('en-GB')}
+                            </p>
+                        </div>
+                        <div className="flex items-center mb-2">
+                            <CalendarTodayIcon className="h-4 w-4 mr-2 text-gray-500" />
+                            <p className="text-sm">
+                                <span className="font-medium">End:</span> {new Date(leave.end_date).toLocaleDateString('en-GB')}
+                            </p>
+                        </div>
+                        <div className="flex items-center mb-2">
+                            <AccessTimeIcon className="h-4 w-4 mr-2 text-gray-500" />
+                            <p className="text-sm">
+                                <span className="font-medium">Days:</span> {calculateDays(leave.start_date, leave.end_date)}
+                            </p>
+                        </div>
+                    </div>
+
+                    <div className="mb-4">
+                        <h3 className="text-sm font-medium mb-2">Leave Reason:</h3>
+                        <div className="bg-gray-100 p-3 rounded-md min-h-[70px] max-h-[150px] overflow-auto">
+                            <p className="text-sm break-words whitespace-pre-line">{leave.reason || "No reason provided."}</p>
+                        </div>
+                    </div>
+
+                    {leave.status === 'Rejected' && (
+                        <div className="mb-4">
+                            <h3 className="text-sm font-medium mb-2">Rejection Reason:</h3>
+                            <div className="bg-red-50 p-3 rounded-md min-h-[70px] max-h-[150px] overflow-auto">
+                                <p className="text-sm break-words whitespace-pre-line">{leave.rejectionReason || "No reason provided."}</p>
+                            </div>
+                        </div>
+                    )}
+
+                    <div className="flex flex-wrap gap-2 mt-auto">
+                        <button
+                            onClick={() => handleView(leave)}
+                            className="inline-flex items-center px-3 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50"
+                        >
+                            <VisibilityIcon className="h-4 w-4 mr-2" />
+                            View
+                        </button>
+
+                        {leave.status === 'Pending' && (
+                            <>
+                                <button
+                                    onClick={() => handleReject(leave)}
+                                    className="inline-flex items-center px-3 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-red-600 hover:bg-red-700"
+                                >
+                                    <CancelIcon className="h-4 w-4 mr-2" />
+                                    Reject
+                                </button>
+                                <button
+                                    onClick={() => handleApprove(leave)}
+                                    className="inline-flex items-center px-3 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-green-600 hover:bg-green-700"
+                                >
+                                    <CheckCircleIcon className="h-4 w-4 mr-2" />
+                                    Approve
+                                </button>
+                            </>
+                        )}
+                    </div>
+                </div>
+            </div>
+        </div>
+    );
+
     return (
-        <Box sx={styles.pageContainer}>
-            <Paper elevation={1} sx={{ padding: '24px', marginBottom: '24px' }}>
-                <Typography variant="h4" component="h1" sx={styles.header}>
-                    Leave Management System
-                </Typography>
-                <Typography variant="body1" color="textSecondary">
-                    Track and manage employee leave requests
-                </Typography>
-            </Paper>
+        <div className="bg-gray-100 min-h-screen p-6">
+            {/* Header */}
+            <div className="bg-white p-6 rounded-lg shadow-sm mb-6">
+                <h1 className="text-2xl font-bold mb-2">Leave Management System</h1>
+                <p className="text-gray-500">Track and manage employee leave requests</p>
+            </div>
 
-            {/* MUI Tabs Implementation */}
-            <Paper sx={styles.tabsContainer}>
-                <Tabs
-                    value={tabValue}
-                    onChange={handleTabChange}
-                    sx={{ '& .MuiTabs-indicator': styles.indicator }}
-                    variant="fullWidth"
-                    indicatorColor="primary"
-                    textColor="primary"
-                >
-                    <Tab
-                        icon={<AccessTimeIcon />}
-                        label="Pending"
-                        iconPosition="start"
-                    />
-                    <Tab
-                        icon={<ApprovedIcon />}
-                        label="Approved"
-                        iconPosition="start"
-                    />
-                    <Tab
-                        icon={<RejectedIcon />}
-                        label="Rejected"
-                        iconPosition="start"
-                    />
-                </Tabs>
-            </Paper>
+            {/* Tabs */}
+            <div className="bg-white rounded-lg shadow-sm mb-6">
+                <div className="flex border-b">
+                    <button
+                        className={`flex items-center px-4 py-3 text-sm font-medium ${tabValue === 0 ? 'text-blue-600 border-b-2 border-blue-600' : 'text-gray-500 hover:text-gray-700'} flex-1 justify-center`}
+                        onClick={() => handleTabChange('Pending', 0)}
+                    >
+                        <AccessTimeIcon className="mr-2 h-5 w-5" />
+                        Pending
+                    </button>
+                    <button
+                        className={`flex items-center px-4 py-3 text-sm font-medium ${tabValue === 1 ? 'text-blue-600 border-b-2 border-blue-600' : 'text-gray-500 hover:text-gray-700'} flex-1 justify-center`}
+                        onClick={() => handleTabChange('Approved', 1)}
+                    >
+                        <CheckCircleIcon className="mr-2 h-5 w-5" />
+                        Approved
+                    </button>
+                    <button
+                        className={`flex items-center px-4 py-3 text-sm font-medium ${tabValue === 2 ? 'text-blue-600 border-b-2 border-blue-600' : 'text-gray-500 hover:text-gray-700'} flex-1 justify-center`}
+                        onClick={() => handleTabChange('Rejected', 2)}
+                    >
+                        <CancelIcon className="mr-2 h-5 w-5" />
+                        Rejected
+                    </button>
+                </div>
+            </div>
 
-            {/* Leave Request Cards */}
-            <Grid container spacing={3}>
+            {/* Cards */}
+            <div className="flex flex-wrap -mx-3">
                 {filteredRequests.length > 0 ? (
-                    filteredRequests.map((leave) => (
-                        <Grid item xs={12} sm={6} md={4} key={leave._id}>
-                            <Card sx={styles.leaveCard}>
-                                <CardContent>
-                                    <Box sx={styles.cardHeader}>
-                                        <Box>
-                                            <Typography variant="h6" component="h2">
-                                                {leave.employee_name}
-                                            </Typography>
-                                            <Typography variant="body2" color="textSecondary">
-                                                {leave.leave_type}
-                                            </Typography>
-                                        </Box>
-                                        {getStatusChip(leave.status)}
-                                    </Box>
-
-                                    <Divider sx={{ marginBottom: '16px' }} />
-
-                                    <Box sx={styles.cardInfo}>
-                                        <Box sx={styles.infoRow}>
-                                            <CalendarIcon fontSize="small" sx={{ mr: 1, color: 'text.secondary' }} />
-                                            <Typography variant="body2">
-                                                <strong>Start:</strong> {new Date(leave.start_date).toLocaleDateString()}
-                                            </Typography>
-                                        </Box>
-                                        <Box sx={styles.infoRow}>
-                                            <CalendarIcon fontSize="small" sx={{ mr: 1, color: 'text.secondary' }} />
-                                            <Typography variant="body2">
-                                                <strong>End:</strong> {new Date(leave.end_date).toLocaleDateString()}
-                                            </Typography>
-                                        </Box>
-                                        <Box sx={styles.infoRow}>
-                                            <AccessTimeIcon fontSize="small" sx={{ mr: 1, color: 'text.secondary' }} />
-                                            <Typography variant="body2">
-                                                <strong>Days:</strong> {calculateDays(leave.start_date, leave.end_date)}
-                                            </Typography>
-                                        </Box>
-                                    </Box>
-
-                                    <Typography variant="subtitle2" gutterBottom>
-                                        Reason:
-                                    </Typography>
-                                    <Box sx={styles.reasonContainer}>
-                                        <Typography variant="body2">
-                                            {leave.reason}
-                                        </Typography>
-                                    </Box>
-
-                                    <Box sx={styles.actionButtons}>
-                                        <Button
-                                            variant="outlined"
-                                            startIcon={<ViewIcon />}
-                                            onClick={() => handleView(leave)}
-                                            sx={styles.viewButton}
-                                        >
-                                            View
-                                        </Button>
-
-                                        {leave.status === 'Pending' && (
-                                            <>
-                                                <Button
-                                                    variant="contained"
-                                                    startIcon={<RejectedIcon />}
-                                                    onClick={() => handleReject(leave)}
-                                                    sx={styles.rejectButton}
-                                                >
-                                                    Reject
-                                                </Button>
-                                                <Button
-                                                    variant="contained"
-                                                    startIcon={<ApprovedIcon />}
-                                                    onClick={() => handleApprove(leave)}
-                                                    sx={styles.approveButton}
-                                                >
-                                                    Approve
-                                                </Button>
-                                            </>
-                                        )}
-                                    </Box>
-                                </CardContent>
-                            </Card>
-                        </Grid>
-                    ))
+                    filteredRequests.map((leave) => renderLeaveCard(leave))
                 ) : (
-                    <Grid item xs={12}>
-                        <Paper sx={styles.noData}>
-                            <Typography variant="h6">
-                                No {selectedStatus} Requests Found
-                            </Typography>
-                            <Typography variant="body2" color="textSecondary">
-                                There are no leave requests with {selectedStatus} status.
-                            </Typography>
-                        </Paper>
-                    </Grid>
+                    <div className="w-full">
+                        <div className="bg-white rounded-lg shadow-sm p-12 text-center">
+                            <h2 className="text-lg font-medium text-gray-700">No {selectedStatus} Requests Found</h2>
+                            <p className="text-gray-500 mt-2">There are no leave requests with {selectedStatus} status.</p>
+                        </div>
+                    </div>
                 )}
-            </Grid>
+            </div>
 
             {/* Rejection Dialog */}
-            <Dialog
-                open={selectedLeave !== null}
-                onClose={() => setSelectedLeave(null)}
-                fullWidth
-                maxWidth="sm"
-            >
-                <DialogTitle>
-                    Provide Reason for Rejection
-                </DialogTitle>
-                <DialogContent>
-                    <TextField
-                        autoFocus
-                        margin="dense"
-                        label="Rejection Reason"
-                        type="text"
-                        fullWidth
-                        multiline
-                        rows={4}
-                        variant="outlined"
-                        value={rejectionReason}
-                        onChange={(e) => setRejectionReason(e.target.value)}
-                    />
-                </DialogContent>
-                <DialogActions>
-                    <Button onClick={() => setSelectedLeave(null)} color="inherit">
-                        Cancel
-                    </Button>
-                    <Button onClick={submitRejection} color="error" variant="contained">
-                        Submit Rejection
-                    </Button>
-                </DialogActions>
-            </Dialog>
+            {selectedLeave && (
+                <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
+                    <div className="bg-white rounded-lg shadow-xl w-full max-w-md">
+                        <div className="p-6 border-b">
+                            <h2 className="text-lg font-medium">Provide Reason for Rejection</h2>
+                        </div>
+                        <div className="p-6">
+                            <textarea
+                                className="w-full border border-gray-300 rounded-md p-3 h-32 focus:ring-blue-500 focus:border-blue-500"
+                                placeholder="Enter rejection reason"
+                                value={rejectionReason}
+                                onChange={(e) => setRejectionReason(e.target.value)}
+                            ></textarea>
+                        </div>
+                        <div className="p-4 bg-gray-50 flex justify-end space-x-3 rounded-b-lg">
+                            <button
+                                className="px-4 py-2 text-gray-700 bg-white border border-gray-300 rounded-md shadow-sm hover:bg-gray-50"
+                                onClick={() => setSelectedLeave(null)}
+                            >
+                                Cancel
+                            </button>
+                            <button
+                                className="px-4 py-2 text-white bg-red-600 border border-transparent rounded-md shadow-sm hover:bg-red-700"
+                                onClick={submitRejection}
+                            >
+                                Submit Rejection
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            )}
 
-            {/* View Leave Details Dialog */}
-            <Dialog
-                open={viewDialogOpen}
-                onClose={handleCloseViewDialog}
-                fullWidth
-                maxWidth="sm"
-            >
-                <DialogTitle>
-                    Leave Request Details
-                </DialogTitle>
-                <DialogContent dividers>
-                    {viewDialogData && (
-                        <Box sx={{ p: 1 }}>
-                            <Typography variant="h6" gutterBottom>
-                                {viewDialogData.employee_name}
-                            </Typography>
+            {/* View Dialog */}
+            {viewDialogOpen && viewDialogData && (
+                <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
+                    <div className="bg-white rounded-lg shadow-xl w-full max-w-md">
+                        <div className="p-6 border-b">
+                            <h2 className="text-lg font-medium">Leave Request Details</h2>
+                        </div>
+                        <div className="p-6 overflow-y-auto max-h-[70vh]">
+                            <h3 className="text-lg font-medium mb-4">{viewDialogData.employee_name}</h3>
 
-                            <Grid container spacing={2} sx={{ mb: 2 }}>
-                                <Grid item xs={6}>
-                                    <Typography variant="subtitle2">Leave Type</Typography>
-                                    <Typography variant="body1">{viewDialogData.leave_type}</Typography>
-                                </Grid>
-                                <Grid item xs={6}>
-                                    <Typography variant="subtitle2">Status</Typography>
-                                    <Box sx={{ mt: 1 }}>
+                            <div className="grid grid-cols-2 gap-4 mb-4">
+                                <div>
+                                    <h4 className="text-sm font-medium text-gray-500">Leave Type</h4>
+                                    <p>{viewDialogData.leave_type}</p>
+                                </div>
+                                <div>
+                                    <h4 className="text-sm font-medium text-gray-500">Status</h4>
+                                    <div className="mt-1">
                                         {getStatusChip(viewDialogData.status)}
-                                    </Box>
-                                </Grid>
-                            </Grid>
+                                    </div>
+                                </div>
+                            </div>
 
-                            <Divider sx={{ my: 2 }} />
+                            <hr className="my-4" />
 
-                            <Grid container spacing={2} sx={{ mb: 2 }}>
-                                <Grid item xs={6}>
-                                    <Typography variant="subtitle2">Start Date</Typography>
-                                    <Typography variant="body1">
-                                        {new Date(viewDialogData.start_date).toLocaleDateString()}
-                                    </Typography>
-                                </Grid>
-                                <Grid item xs={6}>
-                                    <Typography variant="subtitle2">End Date</Typography>
-                                    <Typography variant="body1">
-                                        {new Date(viewDialogData.end_date).toLocaleDateString()}
-                                    </Typography>
-                                </Grid>
-                                <Grid item xs={12}>
-                                    <Typography variant="subtitle2">Total Days</Typography>
-                                    <Typography variant="body1">{viewDialogData.totalDays}</Typography>
-                                </Grid>
-                            </Grid>
+                            <div className="grid grid-cols-2 gap-4 mb-4">
+                                <div>
+                                    <h4 className="text-sm font-medium text-gray-500">Start Date</h4>
+                                    <p>{new Date(viewDialogData.start_date).toLocaleDateString()}</p>
+                                </div>
+                                <div>
+                                    <h4 className="text-sm font-medium text-gray-500">End Date</h4>
+                                    <p>{new Date(viewDialogData.end_date).toLocaleDateString()}</p>
+                                </div>
+                                <div className="col-span-2">
+                                    <h4 className="text-sm font-medium text-gray-500">Total Days</h4>
+                                    <p>{viewDialogData.totalDays}</p>
+                                </div>
+                            </div>
 
-                            <Divider sx={{ my: 2 }} />
+                            <hr className="my-4" />
 
-                            <Typography variant="subtitle2">Reason for Leave</Typography>
-                            <Paper elevation={0} sx={{ p: 2, bgcolor: '#f5f5f5', mt: 1 }}>
-                                <Typography variant="body1">{viewDialogData.reason}</Typography>
-                            </Paper>
+                            <h4 className="text-sm font-medium text-gray-500 mb-2">Reason for Leave</h4>
+                            <div className="bg-gray-100 p-4 rounded-md mb-4">
+                                <p className="break-words">{viewDialogData.reason || "No reason provided."}</p>
+                            </div>
 
                             {viewDialogData.status === 'Rejected' && viewDialogData.rejectionReason && (
                                 <>
-                                    <Typography variant="subtitle2" sx={{ mt: 2 }}>Rejection Reason</Typography>
-                                    <Paper elevation={0} sx={{ p: 2, bgcolor: '#ffebee', mt: 1 }}>
-                                        <Typography variant="body1">{viewDialogData.rejectionReason}</Typography>
-                                    </Paper>
+                                    <h4 className="text-sm font-medium text-gray-500 mb-2">Rejection Reason</h4>
+                                    <div className="bg-red-50 p-4 rounded-md">
+                                        <p className="break-words">{viewDialogData.rejectionReason}</p>
+                                    </div>
                                 </>
                             )}
-                        </Box>
-                    )}
-                </DialogContent>
-                <DialogActions>
-                    <Button onClick={handleCloseViewDialog} color="primary">
-                        Close
-                    </Button>
-                </DialogActions>
-            </Dialog>
+                        </div>
+                        <div className="p-4 bg-gray-50 flex justify-end rounded-b-lg">
+                            <button
+                                className="px-4 py-2 text-gray-700 bg-white border border-gray-300 rounded-md shadow-sm hover:bg-gray-50"
+                                onClick={handleCloseViewDialog}
+                            >
+                                Close
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            )}
 
-            {/* Snackbar for notifications */}
-            <Snackbar
-                open={snackbar.open}
-                autoHideDuration={6000}
-                onClose={handleCloseSnackbar}
-                anchorOrigin={{ vertical: 'bottom', horizontal: 'right' }}
-            >
-                <Alert
-                    onClose={handleCloseSnackbar}
-                    severity={snackbar.severity}
-                    variant="filled"
-                    sx={{ width: '100%' }}
+            {/* Snackbar */}
+            {snackbar.open && (
+                <div className={`fixed bottom-4 right-4 max-w-xs p-4 rounded-md shadow-lg z-50 
+                    ${snackbar.severity === 'success' ? 'bg-green-50 text-green-800 border-l-4 border-green-600' :
+                        snackbar.severity === 'error' ? 'bg-red-50 text-red-800 border-l-4 border-red-600' :
+                            snackbar.severity === 'warning' ? 'bg-yellow-50 text-yellow-800 border-l-4 border-yellow-600' :
+                                'bg-blue-50 text-blue-800 border-l-4 border-blue-600'}`}
                 >
-                    <AlertTitle>{snackbar.severity === 'success' ? 'Success' :
-                        snackbar.severity === 'error' ? 'Error' :
-                            snackbar.severity === 'warning' ? 'Warning' : 'Info'}</AlertTitle>
-                    {snackbar.message}
-                </Alert>
-            </Snackbar>
-        </Box>
+                    <div className="flex">
+                        <div className="flex-shrink-0">
+                            {snackbar.severity === 'success' && (
+                                <CheckCircleIcon className="h-5 w-5 text-green-400" />
+                            )}
+                            {snackbar.severity === 'error' && (
+                                <CancelIcon className="h-5 w-5 text-red-400" />
+                            )}
+                            {snackbar.severity === 'warning' && (
+                                <AccessTimeIcon className="h-5 w-5 text-yellow-400" />
+                            )}
+                        </div>
+                        <div className="ml-3">
+                            <h3 className="text-sm font-medium">
+                                {snackbar.severity === 'success' ? 'Success' :
+                                    snackbar.severity === 'error' ? 'Error' :
+                                        snackbar.severity === 'warning' ? 'Warning' : 'Info'}
+                            </h3>
+                            <div className="mt-1 text-sm">
+                                {snackbar.message}
+                            </div>
+                        </div>
+                        <div className="ml-auto pl-3">
+                            <div className="-mx-1.5 -my-1.5">
+                                <button
+                                    type="button"
+                                    onClick={handleCloseSnackbar}
+                                    className="inline-flex bg-transparent rounded-md p-1.5 text-gray-500 hover:bg-gray-200 focus:outline-none"
+                                >
+                                    <span className="sr-only">Close</span>
+                                    <svg className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+                                        <path fillRule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clipRule="evenodd" />
+                                    </svg>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            )}
+        </div>
     );
 };
 
