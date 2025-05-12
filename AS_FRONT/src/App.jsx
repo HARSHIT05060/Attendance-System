@@ -5,13 +5,15 @@ import EmployeeDetail from './pages/EmployeeDetail'; // New page for employee de
 import AddEmployee from './pages/AddEmployee';
 import LeaveApplication from './pages/LeaveApplication';
 import LeaveStatusPage from './pages/LeaveStatus';
+import Navbar from './Components/Navbar';
 
 const App = () => {
   return (
     <Router>
+      <Navbar />
       <Routes>
         <Route exact path="/leaveapplication" element={<LeaveApplication />} />
-        <Route exact path="/LeaveStatusPage" element={<LeaveStatusPage />} />
+        <Route exact path="/leavestatusPage" element={<LeaveStatusPage />} />
         <Route exact path="/employee" element={<Employee />} />
         <Route path="/employee/add" element={<AddEmployee />} />
         <Route path="/employee/:id" element={<EmployeeDetail />} />
