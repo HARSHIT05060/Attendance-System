@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import {ArrowLeft} from 'lucide-react';
+import { ArrowLeft } from 'lucide-react';
 import {
     TextField,
     Button,
@@ -116,23 +116,24 @@ const shiftOptions = [
 
 // Department options
 const departmentOptions = [
-    { value: 'RCB', label: 'RCB' },
-    { value: 'MI', label: 'MI' },
-    { value: 'KKR', label: 'KKR' },
-    { value: 'SRH', label: 'SRH' },
-    { value: 'CSK', label: 'CSK' }  
+    { label: "Human Resources", value: "hr" },
+    { label: "Engineering", value: "engineering" },
+    { label: "Marketing", value: "marketing" },
+    { label: "Sales", value: "sales" },
+    { label: "Finance", value: "finance" },
 ];
+
 
 const AddEmployee = () => {
     const navigate = useNavigate();
     const [activeStep, setActiveStep] = useState(0);
     const [photoPreview, setPhotoPreview] = useState(null);
 
-// Handle navigation (replace with your actual navigation method)
-const handleNavigation = (path) => {
-    console.log(`Navigate to: ${path}`);
-    navigate(path); 
-};
+    // Handle navigation (replace with your actual navigation method)
+    const handleNavigation = (path) => {
+        console.log(`Navigate to: ${path}`);
+        navigate(path);
+    };
 
     const [formData, setFormData] = useState({
         fullName: '',
@@ -521,13 +522,13 @@ const handleNavigation = (path) => {
             <Box sx={{ bgcolor: 'background.default', minHeight: '100vh', py: 4 }}>
                 <Container maxWidth="md">
                     <Paper elevation={3} sx={{ p: 4, borderRadius: 2 }}>
-                    <button
-                        onClick={() => handleNavigation('/employee')}
-                        className="flex items-center text-blue-600 hover:text-blue-800 font-medium mb-4 transition-colors"
-                    >
-                        <ArrowLeft size={18} className="mr-1" />
-                        Back to Employee List
-                    </button>
+                        <button
+                            onClick={() => handleNavigation('/employee')}
+                            className="flex items-center text-blue-600 hover:text-blue-800 font-medium mb-4 transition-colors"
+                        >
+                            <ArrowLeft size={18} className="mr-1" />
+                            Back to Employee List
+                        </button>
                         <Typography variant="h4" align="center" gutterBottom>
                             Add New Employee
                         </Typography>

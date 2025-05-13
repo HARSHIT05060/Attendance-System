@@ -4,11 +4,13 @@ const cors = require('cors');
 const connectDB = require('./config/db');  // Correct path to db.js
 const employeeRoutes = require('./routes/employeeRoutes'); // Correct path to employeeRoutes.js
 const leaveRoutes = require('./routes/leaveRoutes');
+const userRoutes = require('./routes/userRoutes');
 
 dotenv.config(); // Load environment variables
 
 const app = express();
 
+app.use(express.json());
 // Enable CORS for frontend communication
 app.use(cors({
     origin: 'http://localhost:5173',  // URL of your frontend
@@ -16,6 +18,9 @@ app.use(cors({
 
 // Connect to MongoDB
 connectDB();
+
+app.use('/api/users', userRoutes);
+
 
 // Middleware to parse JSON request bodies
 app.use(express.json());

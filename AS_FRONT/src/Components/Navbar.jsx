@@ -9,6 +9,9 @@ const Navbar = () => {
                 </div>
                 <ul className="flex space-x-6 text-gray-700 font-medium">
                     <li>
+                        <Link to="/usermanage" className="hover:text-blue-500">User Management</Link>
+                    </li>
+                    <li>
                         <Link to="/leaveapplication" className="hover:text-blue-500">LeaveApplication</Link>
                     </li>
                     <li>
