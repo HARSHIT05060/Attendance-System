@@ -34,7 +34,9 @@ app.use('/api', leaveRoutes);     // Leave routes
 app.get("/api/data", (req, res) => {
     res.json({ message: "Hello from backend!" });
 });
-
+app.get("/", (req, res) => {
+    res.send("API is live 🚀");
+});
 // Start the server
 app.listen(PORT, () => {
     console.log(`Server running on port ${PORT}`);
