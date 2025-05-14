@@ -1,10 +1,15 @@
 // src/api.js
-
 import axios from "axios";
 
-// Create an Axios instance with base URL from environment variable
+const baseURL =
+    import.meta.env.MODE === "development"
+        ? import.meta.env.VITE_API_URL_LOCAL
+        : import.meta.env.VITE_API_URL_PROD;
+
+console.log("Axios Base URL:", baseURL); // for confirmation
+
 const api = axios.create({
-    baseURL: import.meta.env.VITE_API_URL,
+    baseURL,
 });
 
 export default api;

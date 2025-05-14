@@ -31,6 +31,9 @@ connectDB();
 app.use('/api/users', userRoutes);
 app.use('/api', employeeRoutes);  // Employee routes
 app.use('/api', leaveRoutes);     // Leave routes
+app.get("/api/data", (req, res) => {
+    res.json({ message: "Hello from backend!" });
+});
 
 // Start the server
 app.listen(PORT, () => {
