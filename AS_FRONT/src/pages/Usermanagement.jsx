@@ -1,132 +1,62 @@
-import React, { useState, useEffect } from 'react';
-import { User, Edit, Trash2, CheckCircle, XCircle } from 'lucide-react';
+import { useState, useEffect } from 'react';
+import { Settings, X, User, CheckCircle, XCircle } from 'lucide-react';
 
-const API_URL = 'http://localhost:5000/api/users';
+export default function UserManagement() {
+    // We'll keep your existing state and data handling
+    const [users, setUsers] = useState([
+        { id: 1, name: 'Yeray Rosales', email: 'name@email.com', roles: ['Manager', 'Admin', 'Auditor'], loggedIn: false },
+        { id: 2, name: 'Lennert Nijenhijsank', email: 'name@email.com', roles: ['Manager', 'Admin'], loggedIn: true },
+        { id: 3, name: 'Tallah Cotton', email: 'name@email.com', roles: ['Admin', 'Auditor'], loggedIn: true },
+        { id: 4, name: 'Adaora Azubuike', email: 'name@email.com', roles: ['Admin', 'Auditor'], loggedIn: false },
+        { id: 5, name: 'Antonin Hafsi', email: 'name@email.com', roles: ['Manager'], loggedIn: true },
+        { id: 6, name: 'Sudanka Rakotovirts', email: 'name@email.com', roles: ['Auditor'], loggedIn: true },
+        { id: 7, name: 'Lilah Iosslev', email: 'name@email.com', roles: ['Auditor'], loggedIn: false },
+        { id: 8, name: 'Nawf El Azam', email: 'name@email.com', roles: ['Auditor'], loggedIn: true },
+    ]);
 
-const UserManagement = () => {
-    const [users, setUsers] = useState([]);
-    const [editingUser, setEditingUser] = useState(null);
+    const [searchTerm, setSearchTerm] = useState('');
 
-    const [formData, setFormData] = useState({
-        employeeId: '',
-        username: '',
-        password: '',
-        role: 'HR',
-        permissions: {
-            canApproveLeave: false,
-            canEditSalary: false,
-            canManagePayroll: false,
-            canManageUsers: false
-        },
-        status: 'active',
-        twoFactorEnabled: false
-    });
-
-    const loadUsers = async () => {
-        try {
-            const res = await window.fetch(API_URL);
-            const data = await res.json();
-            setUsers(data);
-        } catch (err) {
-            console.error('Error loading users:', err);
-        }
-    };
-
-    useEffect(() => {
-        loadUsers();
-    }, []);
-
-    const handleChange = (e) => {
-        const { name, value, type, checked } = e.target;
-
-        if (name in formData.permissions) {
-            setFormData(prev => ({
-                ...prev,
-                permissions: { ...prev.permissions, [name]: checked }
-            }));
-        } else {
-            setFormData(prev => ({
-                ...prev,
-                [name]: type === 'checkbox' ? checked : value
-            }));
-        }
-    };
-
-    const handleSubmit = async (e) => {
-        e.preventDefault();
-
-        try {
-            const method = editingUser ? 'PUT' : 'POST';
-            const url = editingUser 
-                ? `${API_URL}/${editingUser._id}` 
-                : `${API_URL}/create`;
-
-            const res = await window.fetch(url, {
-                method,
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify(formData)
-            });
-
-            if (res.ok) {
-                setEditingUser(null);
-                setFormData({
-                    employeeId: '',
-                    username: '',
-                    password: '',
-                    role: 'HR',
-                    permissions: {
-                        canApproveLeave: false,
-                        canEditSalary: false,
-                        canManagePayroll: false,
-                        canManageUsers: false
-                    },
-                    status: 'active',
-                    twoFactorEnabled: false
-                });
-                loadUsers();
+    // Role badge component with appropriate color
+    const RoleBadge = ({ role }) => {
+        const getBgColor = () => {
+            switch (role) {
+                case 'Manager': return 'bg-indigo-100 text-indigo-800';
+                case 'Admin': return 'bg-green-100 text-green-800';
+                case 'Auditor': return 'bg-purple-100 text-purple-800';
+                default: return 'bg-gray-100 text-gray-800';
             }
-        } catch (err) {
-            console.error('Error submitting user:', err);
-        }
+        };
+
+        return (
+            <span className={`px-2 py-1 rounded-full text-xs font-medium ${getBgColor()}`}>
+                {role}
+            </span>
+        );
     };
 
-    const handleEdit = (user) => {
-        setEditingUser(user);
-        setFormData(user);
-    };
-
-    const handleDelete = async (id) => {
-        try {
-            const res = await window.fetch(`${API_URL}/${id}`, {
-                method: 'DELETE'
-            });
-
-            if (res.ok) {
-                loadUsers();
+    // User avatar component
+    const UserAvatar = ({ name }) => {
+        // Using the name to generate a consistent color
+        const getColor = (str) => {
+            const colors = ['bg-indigo-500', 'bg-purple-500', 'bg-pink-500', 'bg-blue-500', 'bg-green-500', 'bg-red-500'];
+            let hash = 0;
+            for (let i = 0; i < str.length; i++) {
+                hash = str.charCodeAt(i) + ((hash << 5) - hash);
             }
-        } catch (err) {
-            console.error('Error deleting user:', err);
-        }
-    };
+            return colors[Math.abs(hash) % colors.length];
+        };
 
-    const handleCancel = () => {
-        setEditingUser(null);
-        setFormData({
-            employeeId: '',
-            username: '',
-            password: '',
-            role: 'HR',
-            permissions: {
-                canApproveLeave: false,
-                canEditSalary: false,
-                canManagePayroll: false,
-                canManageUsers: false
-            },
-            status: 'active',
-            twoFactorEnabled: false
-        });
+        const initials = name
+            .split(' ')
+            .map(part => part[0])
+            .join('')
+            .substring(0, 2);
+
+        return (
+            <div className={`w-10 h-10 rounded-full flex items-center justify-center text-white ${getColor(name)}`}>
+                {initials}
+            </div>
+        );
     };
 
     return (
@@ -138,174 +68,97 @@ const UserManagement = () => {
                         <User className="mr-4 w-10 h-10" />
                         User Management
                     </h1>
+                    <div className="text-sm text-white/80 mt-2">
+                        <span>Home &gt; Permissions & Accounts &gt; User Management</span>
+                    </div>
                 </div>
 
                 {/* Main Content */}
-                <div className="grid md:grid-cols-3 gap-6 p-6">
-                    {/* User Form */}
-                    <div className="md:col-span-1 bg-gray-100 p-6 rounded-lg">
-                        <h2 className="text-xl font-semibold mb-4 text-gray-800">
-                            {editingUser ? 'Edit User' : 'Create User'}
-                        </h2>
-                        <div className="space-y-4">
-                            <input 
-                                name="employeeId" 
-                                placeholder="Employee ID" 
-                                value={formData.employeeId} 
-                                onChange={handleChange} 
-                                required 
-                                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-indigo-500 focus:outline-none"
+                <div className="p-6">
+                    {/* Search and Add User row */}
+                    <div className="flex justify-between mb-6">
+                        <div className="relative w-64">
+                            <input
+                                type="text"
+                                placeholder="Search User"
+                                className="w-full p-2 pl-3 pr-10 border rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                                value={searchTerm}
+                                onChange={(e) => setSearchTerm(e.target.value)}
                             />
-                            <input 
-                                name="username" 
-                                placeholder="Username" 
-                                value={formData.username} 
-                                onChange={handleChange} 
-                                required 
-                                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-indigo-500 focus:outline-none"
-                            />
-                            <input 
-                                name="password" 
-                                type="password" 
-                                placeholder="Password" 
-                                value={formData.password} 
-                                onChange={handleChange} 
-                                required 
-                                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-indigo-500 focus:outline-none"
-                            />
-                            
-                            <select 
-                                name="role" 
-                                value={formData.role} 
-                                onChange={handleChange}
-                                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-indigo-500 focus:outline-none"
-                            >
-                                <option value="HR">HR</option>
-                                <option value="Manager">Manager</option>
-                                <option value="Admin">Admin</option>
-                            </select>
-
-                            {/* Permissions Checkboxes */}
-                            <div className="space-y-2">
-                                <label className="block text-sm font-medium text-gray-700">Permissions</label>
-                                {Object.keys(formData.permissions).map((key) => (
-                                    <div key={key} className="flex items-center">
-                                        <input 
-                                            type="checkbox" 
-                                            name={key} 
-                                            checked={formData.permissions[key]} 
-                                            onChange={handleChange} 
-                                            className="h-4 w-4 text-indigo-600 border-gray-300 rounded mr-2"
-                                        />
-                                        <span className="text-sm text-gray-700">
-                                            {key.replace(/([A-Z])/g, ' $1').replace(/^./, str => str.toUpperCase())}
-                                        </span>
-                                    </div>
-                                ))}
-                            </div>
-
-                            <select 
-                                name="status" 
-                                value={formData.status} 
-                                onChange={handleChange}
-                                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-indigo-500 focus:outline-none"
-                            >
-                                <option value="active">Active</option>
-                                <option value="inactive">Inactive</option>
-                            </select>
-
-                            <div className="flex items-center">
-                                <input 
-                                    type="checkbox" 
-                                    name="twoFactorEnabled" 
-                                    checked={formData.twoFactorEnabled} 
-                                    onChange={handleChange} 
-                                    className="h-4 w-4 text-indigo-600 border-gray-300 rounded mr-2"
-                                />
-                                <span className="text-sm text-gray-700">Two-Factor Authentication</span>
-                            </div>
-
-                            <div className="flex space-x-2">
-                                <button 
-                                    onClick={handleSubmit}
-                                    className="w-full bg-indigo-600 text-white py-2 rounded-md hover:bg-indigo-700 transition duration-300"
-                                >
-                                    {editingUser ? 'Update User' : 'Create User'}
-                                </button>
-                                {editingUser && (
-                                    <button 
-                                        onClick={handleCancel}
-                                        className="w-full bg-gray-200 text-gray-800 py-2 rounded-md hover:bg-gray-300 transition duration-300"
-                                    >
-                                        Cancel
-                                    </button>
-                                )}
+                            <div className="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none">
+                                <svg className="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
+                                </svg>
                             </div>
                         </div>
+                        <button className="bg-indigo-600 hover:bg-indigo-700 text-white font-medium py-2 px-4 rounded transition duration-300">
+                            Add User
+                        </button>
                     </div>
 
-                    {/* User List */}
-                    <div className="md:col-span-2 overflow-x-auto">
-                        <table className="w-full bg-white shadow-md rounded-lg overflow-hidden">
+                    {/* User Table */}
+                    <div className="bg-white rounded-lg shadow-md overflow-hidden mb-6">
+                        <table className="w-full">
                             <thead className="bg-gray-200">
                                 <tr>
-                                    <th className="p-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Employee ID</th>
-                                    <th className="p-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Username</th>
-                                    <th className="p-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Role</th>
-                                    <th className="p-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
-                                    <th className="p-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Last Login</th>
-                                    <th className="p-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">Permissions</th>
-                                    <th className="p-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
+                                    <th className="w-12 py-3 px-4 text-left">
+                                        <input type="checkbox" className="rounded text-indigo-600" />
+                                    </th>
+                                    <th className="py-3 px-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Name</th>
+                                    <th className="py-3 px-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">User Role</th>
+                                    <th className="py-3 px-4 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
+                                    <th className="py-3 px-4 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
                                 </tr>
                             </thead>
                             <tbody>
-                                {users.map(user => (
-                                    <tr key={user._id} className="border-b hover:bg-gray-100 transition duration-200">
-                                        <td className="p-3 text-sm text-gray-700">{user.employeeId}</td>
-                                        <td className="p-3 text-sm text-gray-700">{user.username}</td>
-                                        <td className="p-3 text-sm text-gray-700">{user.role}</td>
-                                        <td className="p-3 text-center">
-                                            <span className={`px-2 py-1 text-xs rounded-full ${
-                                                user.status === 'active' 
-                                                    ? 'bg-green-200 text-green-800' 
-                                                    : 'bg-red-200 text-red-800'
-                                            }`}>
-                                                {user.status}
-                                            </span>
+                                {users.map((user) => (
+                                    <tr key={user.id} className="border-b hover:bg-gray-100 transition duration-200">
+                                        <td className="py-3 px-4">
+                                            <input type="checkbox" className="rounded text-indigo-600" />
                                         </td>
-                                        <td className="p-3 text-sm text-gray-700">
-                                            {user.lastLogin ? new Date(user.lastLogin).toLocaleString() : '-'}
-                                        </td>
-                                        <td className="p-3 text-center">
-                                            <div className="flex flex-col items-center space-y-1">
-                                                {Object.entries(user.permissions)
-                                                    .filter(([, value]) => value)
-                                                    .map(([key]) => (
-                                                        <span 
-                                                            key={key} 
-                                                            className="px-2 py-1 bg-indigo-100 text-indigo-800 text-xs rounded-full"
-                                                        >
-                                                            {key.replace(/([A-Z])/g, ' $1').replace(/^./, str => str.toUpperCase())}
-                                                        </span>
-                                                    ))
-                                                }
+                                        <td className="py-3 px-4">
+                                            <div className="flex items-center gap-3">
+                                                <UserAvatar name={user.name} />
+                                                <div>
+                                                    <div className="font-medium">{user.name}</div>
+                                                    <div className="text-sm text-gray-500">{user.email}</div>
+                                                    {!user.loggedIn && (
+                                                        <div className="text-xs text-orange-500 font-medium flex items-center mt-1">
+                                                            <XCircle className="w-3.5 h-3.5 mr-1" />
+                                                            Not Logged in
+                                                        </div>
+                                                    )}
+                                                    {user.loggedIn && (
+                                                        <div className="text-xs text-green-500 font-medium flex items-center mt-1">
+                                                            <CheckCircle className="w-3.5 h-3.5 mr-1" />
+                                                            Active
+                                                        </div>
+                                                    )}
+                                                </div>
                                             </div>
                                         </td>
-                                        <td className="p-3 text-center">
-                                            <div className="flex justify-center space-x-2">
-                                                <button 
-                                                    onClick={() => handleEdit(user)}
-                                                    className="text-indigo-600 hover:text-indigo-800 transition duration-300"
-                                                    title="Edit User"
-                                                >
-                                                    <Edit className="w-5 h-5" />
+                                        <td className="py-3 px-4">
+                                            <div className="flex flex-wrap gap-2">
+                                                {user.roles.map((role, idx) => (
+                                                    <RoleBadge key={idx} role={role} />
+                                                ))}
+                                            </div>
+                                        </td>
+                                        <td className="py-3 px-4 text-center">
+                                            <span className={`px-2 py-1 text-xs rounded-full ${user.loggedIn
+                                                    ? 'bg-green-200 text-green-800'
+                                                    : 'bg-red-200 text-red-800'
+                                                }`}>
+                                                {user.loggedIn ? 'active' : 'inactive'}
+                                            </span>
+                                        </td>
+                                        <td className="py-3 px-4">
+                                            <div className="flex items-center justify-center space-x-3">
+                                                <button className="flex items-center text-indigo-600 hover:text-indigo-800 transition duration-300" title="Modify Roles">
+                                                    <Settings className="w-5 h-5" />
                                                 </button>
-                                                <button 
-                                                    onClick={() => handleDelete(user._id)}
-                                                    className="text-red-600 hover:text-red-800 transition duration-300"
-                                                    title="Delete User"
-                                                >
-                                                    <Trash2 className="w-5 h-5" />
+                                                <button className="flex items-center text-red-600 hover:text-red-800 transition duration-300" title="Remove User">
+                                                    <X className="w-5 h-5" />
                                                 </button>
                                             </div>
                                         </td>
@@ -314,10 +167,26 @@ const UserManagement = () => {
                             </tbody>
                         </table>
                     </div>
+
+                    {/* Pagination */}
+                    <div className="flex items-center justify-between">
+                        <div className="text-sm text-gray-600">
+                            Showing 7 of 55 total Users
+                        </div>
+                        <div className="flex items-center gap-2">
+                            <button className="px-3 py-1 border rounded-md bg-white hover:bg-gray-50 text-sm">First</button>
+                            <button className="px-2 py-1 border rounded-md bg-white hover:bg-gray-50 text-sm">&lt;</button>
+                            <button className="px-3 py-1 border rounded-md bg-white hover:bg-gray-50 text-sm">10</button>
+                            <button className="px-3 py-1 border rounded-md bg-indigo-600 text-white hover:bg-indigo-700 text-sm font-medium">11</button>
+                            <span className="px-1">...</span>
+                            <button className="px-3 py-1 border rounded-md bg-white hover:bg-gray-50 text-sm">25</button>
+                            <button className="px-3 py-1 border rounded-md bg-white hover:bg-gray-50 text-sm">26</button>
+                            <button className="px-2 py-1 border rounded-md bg-white hover:bg-gray-50 text-sm">&gt;</button>
+                            <button className="px-3 py-1 border rounded-md bg-white hover:bg-gray-50 text-sm">Last</button>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
     );
-};
-
-export default UserManagement;
+}

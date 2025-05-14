@@ -13,7 +13,7 @@ const app = express();
 app.use(express.json());
 // Enable CORS for frontend communication
 app.use(cors({
-    origin: 'http://localhost:5173',  // URL of your frontend
+    origin: 'https://attendance-system-sooty-gamma.vercel.app',  // URL of your frontend
 }));
 
 // Connect to MongoDB
