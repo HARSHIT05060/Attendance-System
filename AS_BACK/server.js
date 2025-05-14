@@ -29,7 +29,7 @@ connectDB();
 
 // Define your routes
 app.use('/api/users', userRoutes);
-app.use('/api', employeeRoutes);  // Employee routes
+app.use('/', employeeRoutes);  // Employee routes
 app.use('/api', leaveRoutes);     // Leave routes
 
 // Start the server
