@@ -8,6 +8,7 @@ import LeaveStatusPage from './pages/LeaveStatus';
 import Navbar from './Components/Navbar';
 import Usermanagement from './pages/Usermanagement';
 import api from "./api";
+import Home from './Components/Home';
 const App = () => {
   useEffect(() => {
     console.log("Backend URL:", import.meta.env.VITE_API_URL); // Should show URL in console
@@ -24,6 +25,7 @@ const App = () => {
     <Router>
       <Navbar />
       <Routes>
+        <Route exact path="/" element={<Home/>} />
         <Route exact path="/usermanage" element={<Usermanagement />} />
         <Route exact path="/leaveapplication" element={<LeaveApplication />} />
         <Route exact path="/leavestatusPage" element={<LeaveStatusPage />} />
