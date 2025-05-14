@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { Settings, X, User, CheckCircle, XCircle } from 'lucide-react';
 
 export default function UserManagement() {
