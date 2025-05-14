@@ -1,22 +1,44 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Settings, X, User, CheckCircle, XCircle } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
 
 export default function UserManagement() {
-    // We'll keep your existing state and data handling
-    const [users, setUsers] = useState([
-        { id: 1, name: 'Yeray Rosales', email: 'name@email.com', roles: ['Manager', 'Admin', 'Auditor'], loggedIn: false },
-        { id: 2, name: 'Lennert Nijenhijsank', email: 'name@email.com', roles: ['Manager', 'Admin'], loggedIn: true },
-        { id: 3, name: 'Tallah Cotton', email: 'name@email.com', roles: ['Admin', 'Auditor'], loggedIn: true },
-        { id: 4, name: 'Adaora Azubuike', email: 'name@email.com', roles: ['Admin', 'Auditor'], loggedIn: false },
-        { id: 5, name: 'Antonin Hafsi', email: 'name@email.com', roles: ['Manager'], loggedIn: true },
-        { id: 6, name: 'Sudanka Rakotovirts', email: 'name@email.com', roles: ['Auditor'], loggedIn: true },
-        { id: 7, name: 'Lilah Iosslev', email: 'name@email.com', roles: ['Auditor'], loggedIn: false },
-        { id: 8, name: 'Nawf El Azam', email: 'name@email.com', roles: ['Auditor'], loggedIn: true },
-    ]);
-
+    const [users, setUsers] = useState([]);
     const [searchTerm, setSearchTerm] = useState('');
+    const [loading, setLoading] = useState(true);
+    const [error, setError] = useState(null);
+    const [currentPage, setCurrentPage] = useState(1);
+    const [usersPerPage] = useState(10);
 
-    // Role badge component with appropriate color
+    const navigate = useNavigate();
+
+    const handleAddUser = () => {
+        navigate('/add-user');
+    };
+    useEffect(() => {
+        const fetchUsers = async () => {
+            try {
+                // Get the API URL based on the environment
+                const apiUrl = import.meta.env.VITE_API_URL_LOCAL || import.meta.env.VITE_API_URL_PROD;
+
+                if (!apiUrl) {
+                    throw new Error('API URL is not defined');
+                }
+
+                const response = await fetch(`${apiUrl}/api/users`); // Replace `/api/users` if necessary
+                if (!response.ok) throw new Error('Failed to fetch users');
+                const data = await response.json();
+                setUsers(data);
+            } catch (err) {
+                setError(err.message);
+            } finally {
+                setLoading(false);
+            }
+        };
+
+        fetchUsers();
+    }, []);
+
     const RoleBadge = ({ role }) => {
         const getBgColor = () => {
             switch (role) {
@@ -34,9 +56,7 @@ export default function UserManagement() {
         );
     };
 
-    // User avatar component
     const UserAvatar = ({ name }) => {
-        // Using the name to generate a consistent color
         const getColor = (str) => {
             const colors = ['bg-indigo-500', 'bg-purple-500', 'bg-pink-500', 'bg-blue-500', 'bg-green-500', 'bg-red-500'];
             let hash = 0;
@@ -59,23 +79,61 @@ export default function UserManagement() {
         );
     };
 
+    const filteredUsers = users.filter(user =>
+        user.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        user.email.toLowerCase().includes(searchTerm.toLowerCase())
+    );
+
+    // Get current users for the page
+    const currentUsers = filteredUsers.slice(
+        (currentPage - 1) * usersPerPage,
+        currentPage * usersPerPage
+    );
+
+    // Handle Next and Previous Buttons
+    const handleNext = () => {
+        if (currentPage < Math.ceil(users.length / usersPerPage)) {
+            setCurrentPage(prev => prev + 1);
+        }
+    };
+
+    const handlePrevious = () => {
+        if (currentPage > 1) {
+            setCurrentPage(prev => prev - 1);
+        }
+    };
+
+    // Handle first and last page
+    const handleFirstPage = () => {
+        setCurrentPage(1);
+    };
+
+    const handleLastPage = () => {
+        setCurrentPage(Math.ceil(users.length / usersPerPage));
+    };
+
+    if (loading) {
+        return <div className="p-8 text-center text-gray-500">Loading users...</div>;
+    }
+
+    if (error) {
+        return <div className="p-8 text-center text-red-500">Error: {error}</div>;
+    }
+
     return (
         <div className="bg-gray-50 min-h-screen p-8">
             <div className="max-w-6xl mx-auto bg-white shadow-xl rounded-xl overflow-hidden">
-                {/* Header */}
                 <div className="bg-gradient-to-r from-indigo-600 to-purple-600 text-white p-6">
                     <h1 className="text-3xl font-bold flex items-center">
                         <User className="mr-4 w-10 h-10" />
                         User Management
                     </h1>
                     <div className="text-sm text-white/80 mt-2">
-                        <span>Home &gt; Permissions & Accounts &gt; User Management</span>
+                        <span>Home &gt; User Management</span>
                     </div>
                 </div>
 
-                {/* Main Content */}
                 <div className="p-6">
-                    {/* Search and Add User row */}
                     <div className="flex justify-between mb-6">
                         <div className="relative w-64">
                             <input
@@ -86,17 +144,16 @@ export default function UserManagement() {
                                 onChange={(e) => setSearchTerm(e.target.value)}
                             />
                             <div className="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none">
-                                <svg className="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
+                                <svg className="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
                                 </svg>
                             </div>
                         </div>
-                        <button className="bg-indigo-600 hover:bg-indigo-700 text-white font-medium py-2 px-4 rounded transition duration-300">
+                        <button onClick={handleAddUser} className="bg-indigo-600 hover:bg-indigo-700 text-white font-medium py-2 px-4 rounded transition duration-300">
                             Add User
                         </button>
                     </div>
 
-                    {/* User Table */}
                     <div className="bg-white rounded-lg shadow-md overflow-hidden mb-6">
                         <table className="w-full">
                             <thead className="bg-gray-200">
@@ -111,7 +168,7 @@ export default function UserManagement() {
                                 </tr>
                             </thead>
                             <tbody>
-                                {users.map((user) => (
+                                {filteredUsers.map((user) => (
                                     <tr key={user.id} className="border-b hover:bg-gray-100 transition duration-200">
                                         <td className="py-3 px-4">
                                             <input type="checkbox" className="rounded text-indigo-600" />
@@ -122,13 +179,12 @@ export default function UserManagement() {
                                                 <div>
                                                     <div className="font-medium">{user.name}</div>
                                                     <div className="text-sm text-gray-500">{user.email}</div>
-                                                    {!user.loggedIn && (
+                                                    {!user.loggedIn ? (
                                                         <div className="text-xs text-orange-500 font-medium flex items-center mt-1">
                                                             <XCircle className="w-3.5 h-3.5 mr-1" />
                                                             Not Logged in
                                                         </div>
-                                                    )}
-                                                    {user.loggedIn && (
+                                                    ) : (
                                                         <div className="text-xs text-green-500 font-medium flex items-center mt-1">
                                                             <CheckCircle className="w-3.5 h-3.5 mr-1" />
                                                             Active
@@ -146,8 +202,8 @@ export default function UserManagement() {
                                         </td>
                                         <td className="py-3 px-4 text-center">
                                             <span className={`px-2 py-1 text-xs rounded-full ${user.loggedIn
-                                                    ? 'bg-green-200 text-green-800'
-                                                    : 'bg-red-200 text-red-800'
+                                                ? 'bg-green-200 text-green-800'
+                                                : 'bg-red-200 text-red-800'
                                                 }`}>
                                                 {user.loggedIn ? 'active' : 'inactive'}
                                             </span>
@@ -168,22 +224,29 @@ export default function UserManagement() {
                         </table>
                     </div>
 
-                    {/* Pagination */}
-                    <div className="flex items-center justify-between">
-                        <div className="text-sm text-gray-600">
-                            Showing 7 of 55 total Users
+                    {/* Pagination (static for now) */}
+                    <div>
+                        <div className="flex items-center justify-between">
+                            <div className="text-sm text-gray-600">
+                                Showing {currentUsers.length} of {users.length} total Users
+                            </div>
+                            <div className="flex items-center gap-2">
+                                <button onClick={handleFirstPage} className="px-3 py-1 border rounded-md bg-white hover:bg-gray-50 text-sm">First</button>
+                                <button onClick={handlePrevious} className="px-2 py-1 border rounded-md bg-white hover:bg-gray-50 text-sm">&lt;</button>
+                                <button className="px-3 py-1 border rounded-md bg-white hover:bg-gray-50 text-sm">{currentPage}</button>
+                                <button onClick={handleNext} className="px-2 py-1 border rounded-md bg-white hover:bg-gray-50 text-sm">&gt;</button>
+                                <button onClick={handleLastPage} className="px-3 py-1 border rounded-md bg-white hover:bg-gray-50 text-sm">Last</button>
+                            </div>
                         </div>
-                        <div className="flex items-center gap-2">
-                            <button className="px-3 py-1 border rounded-md bg-white hover:bg-gray-50 text-sm">First</button>
-                            <button className="px-2 py-1 border rounded-md bg-white hover:bg-gray-50 text-sm">&lt;</button>
-                            <button className="px-3 py-1 border rounded-md bg-white hover:bg-gray-50 text-sm">10</button>
-                            <button className="px-3 py-1 border rounded-md bg-indigo-600 text-white hover:bg-indigo-700 text-sm font-medium">11</button>
-                            <span className="px-1">...</span>
-                            <button className="px-3 py-1 border rounded-md bg-white hover:bg-gray-50 text-sm">25</button>
-                            <button className="px-3 py-1 border rounded-md bg-white hover:bg-gray-50 text-sm">26</button>
-                            <button className="px-2 py-1 border rounded-md bg-white hover:bg-gray-50 text-sm">&gt;</button>
-                            <button className="px-3 py-1 border rounded-md bg-white hover:bg-gray-50 text-sm">Last</button>
-                        </div>
+
+                        {/* Render the users for the current page */}
+                        <ul>
+                            {currentUsers.map(user => (
+                                <li key={user.id}>
+                                    {user.name} - {user.email}
+                                </li>
+                            ))}
+                        </ul>
                     </div>
                 </div>
             </div>

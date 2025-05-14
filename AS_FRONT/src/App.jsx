@@ -9,6 +9,7 @@ import Navbar from './Components/Navbar';
 import Usermanagement from './pages/Usermanagement';
 import api from "./api";
 import Home from './Components/Home';
+import AddUser from './pages/AddUser';
 const App = () => {
   useEffect(() => {
     api.get("/api/data") // or change this to a valid route like /api/employees
@@ -26,6 +27,7 @@ const App = () => {
       <Routes>
         <Route exact path="/" element={<Home />} />
         <Route exact path="/usermanage" element={<Usermanagement />} />
+        <Route path="/add-user" element={<AddUser />} />
         <Route exact path="/leaveapplication" element={<LeaveApplication />} />
         <Route exact path="/leavestatusPage" element={<LeaveStatusPage />} />
         <Route exact path="/employee" element={<Employee />} />

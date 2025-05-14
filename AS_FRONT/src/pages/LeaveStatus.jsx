@@ -71,13 +71,13 @@ const LeaveStatusPage = () => {
     };
 
     // Handle approve function
-    const handleApprove = (leave) => {
+    const handleApprove = (leaveId) => {
         const API_BASE_URL =
             import.meta.env.MODE === 'development'
                 ? import.meta.env.VITE_API_URL_LOCAL
                 : import.meta.env.VITE_API_URL_PROD;
 
-        axios.put(`${API_BASE_URL}/api/leaves/${leave._id}`, {
+        axios.put(`${API_BASE_URL}/api/leaves/${leaveId}`, {
             status: 'Approved'
         })
             .then(response => {
@@ -87,7 +87,7 @@ const LeaveStatusPage = () => {
                     severity: 'success'
                 });
                 setLeaveRequests(leaveRequests.map(item =>
-                    item._id === leave._id ? { ...item, status: 'Approved' } : item
+                    item._id === leaveId ? { ...item, status: 'Approved' } : item
                 ));
             })
             .catch(error => {
@@ -265,7 +265,7 @@ const LeaveStatusPage = () => {
                                     Reject
                                 </button>
                                 <button
-                                    onClick={() => handleApprove(leave)}
+                                    onClick={() => handleApprove(leave._id)}
                                     className="inline-flex items-center px-3 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-green-600 hover:bg-green-700"
                                 >
                                     <CheckCircleIcon className="h-4 w-4 mr-2" />

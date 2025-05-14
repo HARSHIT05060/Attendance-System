@@ -16,7 +16,7 @@ const transporter = nodemailer.createTransport({
 // Get all employees (summary)
 const getAllEmployees = async (req, res) => {
     try {
-        const employees = await Employee.find({}, 'fullName employeeId email phoneNumber designation department salary status shift biometricFaceRecognition biometricFingerprint photo'); // Specify the fields to return
+        const employees = await Employee.find({}, 'photo fullName employeeId email phoneNumber joiningDate designation department salary status shift biometricFaceRecognition biometricFingerprint photo'); // Specify the fields to return
         res.json(employees);
     } catch (error) {
         res.status(500).json({ message: error.message });

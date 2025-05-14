@@ -174,8 +174,7 @@ const AddEmployee = () => {
                     ? import.meta.env.VITE_API_URL_LOCAL
                     : import.meta.env.VITE_API_URL_PROD;
 
-            const res = await axios.post(`${API_BASE_URL}/api/employees`, formData);
-            console.log('Employee added:', res.data);
+            await axios.post(`${API_BASE_URL}/api/employees`, formData);
             navigate('/employee');
         } catch (error) {
             console.error('Error adding employee:', error.message);
