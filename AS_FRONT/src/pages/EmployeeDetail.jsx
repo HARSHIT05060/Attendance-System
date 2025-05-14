@@ -42,7 +42,7 @@ const EmployeeDetail = () => {
             setLoading(true);
             try {
                 // Replace with your actual API endpoint
-                const response = await fetch(`http://localhost:5000/api/employees/${employeeId}`);
+                const response = await fetch(`${import.meta.env.VITE_API_URL}/api/employees/${employeeId}`);
 
                 if (!response.ok) {
                     throw new Error(`Failed to fetch employee: ${response.status}`);
@@ -75,7 +75,7 @@ const EmployeeDetail = () => {
         setLoading(true);
         try {
             // Replace with your actual API endpoint
-            const response = await fetch(`http://localhost:5000/api/employees/${employeeId}`, {
+            const response = await fetch(`${import.meta.env.VITE_API_URL}/api/employees/${employeeId}`, {
                 method: 'PUT',
                 headers: {
                     'Content-Type': 'application/json'
@@ -104,9 +104,10 @@ const EmployeeDetail = () => {
     const handleDeleteClick = async () => {
         setLoading(true);
         try {
-            const response = await fetch(`http://localhost:5000/api/employees/${employeeId}`, {
+            const response = await fetch(`${import.meta.env.VITE_API_URL}/api/employees/${employeeId}`, {
                 method: 'DELETE'
             });
+
 
             if (!response.ok) {
                 throw new Error(`Failed to delete employee: ${response.status}`);
@@ -305,8 +306,8 @@ const EmployeeDetail = () => {
                                                 onChange={(e) => handleInputChange('email', e.target.value)}
                                                 disabled={!isEditing}
                                                 className={`pl-10 block w-full shadow-sm rounded-md py-2 px-3 border ${isEditing
-                                                        ? 'border-gray-300 focus:ring-blue-500 focus:border-blue-500'
-                                                        : 'border-gray-200 bg-gray-50 text-gray-600'
+                                                    ? 'border-gray-300 focus:ring-blue-500 focus:border-blue-500'
+                                                    : 'border-gray-200 bg-gray-50 text-gray-600'
                                                     }`}
                                             />
                                         </div>
