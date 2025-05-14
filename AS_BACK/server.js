@@ -18,7 +18,7 @@ app.use(express.json());
 app.use(cors({
     origin: [
         'http://localhost:5173', // Vite dev server
-        'https://attendance-system-hs86f7xkb-harshit05060s-projects.vercel.app/' // Your deployed frontend
+        'https://attendance-system-sooty-gamma.vercel.app/', // Your deployed frontend
     ],
     methods: ['GET', 'POST', 'PUT', 'DELETE'],
     credentials: true
