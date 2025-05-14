@@ -31,7 +31,7 @@ const EmployeePage = () => {
     useEffect(() => {
         const fetchEmployees = async () => {
             try {
-                const response = await axios.get(`${import.meta.env.VITE_API_URL}/employees`); // Replace with your actual API endpoint
+                const response = await axios.get(`${import.meta.env.VITE_API_URL}/api/employees`); // Replace with your actual API endpoint
                 setEmployees(response.data); // Assuming response.data contains the employee data
                 setLoading(false);
             } catch (error) {
