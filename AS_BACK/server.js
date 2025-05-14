@@ -11,8 +11,9 @@ dotenv.config(); // Load environment variables
 const app = express();
 const PORT = process.env.PORT || 5000;
 
-
+// Middleware to parse JSON request bodies
 app.use(express.json());
+
 // Enable CORS for frontend communication
 app.use(cors({
     origin: [
@@ -26,19 +27,10 @@ app.use(cors({
 // Connect to MongoDB
 connectDB();
 
+// Define your routes
 app.use('/api/users', userRoutes);
-
-
-// Middleware to parse JSON request bodies
-app.use(express.json());
-
-// Use employee routes
-app.use('/api', employeeRoutes);
-
-// Use leave routes
-app.use('/api', leaveRoutes);
-
-app.use('/api/leaves', leaveRoutes);
+app.use('/api', employeeRoutes);  // Employee routes
+app.use('/api', leaveRoutes);     // Leave routes
 
 // Start the server
 app.listen(PORT, () => {
