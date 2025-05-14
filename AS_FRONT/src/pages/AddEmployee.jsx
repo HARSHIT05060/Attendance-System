@@ -167,9 +167,14 @@ const AddEmployee = () => {
     };
 
     const handleSubmit = async (e) => {
-        e.preventDefault(); 
+        e.preventDefault();
         try {
-            const res = await axios.post(`${import.meta.env.VITE_API_URL}/api/employees`, formData);
+            const API_BASE_URL =
+                import.meta.env.MODE === 'development'
+                    ? import.meta.env.VITE_API_URL_LOCAL
+                    : import.meta.env.VITE_API_URL_PROD;
+
+            const res = await axios.post(`${API_BASE_URL}/api/employees`, formData);
             console.log('Employee added:', res.data);
             navigate('/employee');
         } catch (error) {

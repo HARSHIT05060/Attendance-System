@@ -15,7 +15,11 @@ const PORT = process.env.PORT || 5000;
 app.use(express.json());
 // Enable CORS for frontend communication
 app.use(cors({
-    origin: 'https://attendance-system-sooty-gamma.vercel.app',  // URL of your frontend
+    origin: [
+        'http://localhost:5173', // Vite dev server
+        'https://attendance-system-sooty-gamma.vercel.app' // Your deployed frontend
+    ],
+    methods: ['GET', 'POST', 'PUT', 'DELETE'],
     credentials: true
 }));
 

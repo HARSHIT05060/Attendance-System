@@ -24,7 +24,12 @@ const LeaveStatusPage = () => {
 
     // Data fetching
     useEffect(() => {
-        axios.get('http://localhost:5000/api/leaves')
+        const API_BASE_URL =
+            import.meta.env.MODE === 'development'
+                ? import.meta.env.VITE_API_URL_LOCAL
+                : import.meta.env.VITE_API_URL_PROD;
+
+        axios.get(`${API_BASE_URL}/api/leaves`)
             .then(response => {
                 setLeaveRequests(response.data);
             })
@@ -32,6 +37,7 @@ const LeaveStatusPage = () => {
                 console.error("Error fetching leave requests:", error);
             });
     }, []);
+
 
     // Filter leave requests whenever the data or selected status changes
     useEffect(() => {
@@ -66,7 +72,12 @@ const LeaveStatusPage = () => {
 
     // Handle approve function
     const handleApprove = (leave) => {
-        axios.put(`http://localhost:5000/api/leaves/${leave._id}`, {
+        const API_BASE_URL =
+            import.meta.env.MODE === 'development'
+                ? import.meta.env.VITE_API_URL_LOCAL
+                : import.meta.env.VITE_API_URL_PROD;
+
+        axios.put(`${API_BASE_URL}/api/leaves/${leave._id}`, {
             status: 'Approved'
         })
             .then(response => {
@@ -89,6 +100,7 @@ const LeaveStatusPage = () => {
             });
     };
 
+
     // Handle reject function
     const handleReject = (leave) => {
         setSelectedLeave(leave);
@@ -96,6 +108,11 @@ const LeaveStatusPage = () => {
 
     // Submit rejection function
     const submitRejection = () => {
+        const API_BASE_URL =
+            import.meta.env.MODE === 'development'
+                ? import.meta.env.VITE_API_URL_LOCAL
+                : import.meta.env.VITE_API_URL_PROD;
+
         if (!rejectionReason) {
             setSnackbar({
                 open: true,
@@ -114,26 +131,23 @@ const LeaveStatusPage = () => {
             return;
         }
 
-        axios.put(`http://localhost:5000/api/leaves/${selectedLeave._id}`, {
+        axios.put(`${API_BASE_URL}/api/leaves/${selectedLeave._id}`, {
             status: 'Rejected',
-            reason: rejectionReason  // Sending rejection reason to the backend
+            reason: rejectionReason
         })
             .then(response => {
-                // Update state with the rejection reason in the response
                 setSnackbar({
                     open: true,
                     message: 'Leave request rejected successfully!',
                     severity: 'success'
                 });
                 setLeaveRequests(leaveRequests.map(leave =>
-                    leave._id === selectedLeave._id ? {
-                        ...leave,
-                        status: 'Rejected',
-                        rejectionReason: rejectionReason // Updating with rejection reason
-                    } : leave
+                    leave._id === selectedLeave._id
+                        ? { ...leave, status: 'Rejected', rejectionReason }
+                        : leave
                 ));
-                setRejectionReason('');  // Clear the rejection reason input
-                setSelectedLeave(null);  // Clear selected leave
+                setRejectionReason('');
+                setSelectedLeave(null);
             })
             .catch(error => {
                 console.error("Error rejecting leave request:", error);
@@ -144,6 +158,7 @@ const LeaveStatusPage = () => {
                 });
             });
     };
+
 
     // Helper function to get status chip
     const getStatusChip = (status) => {

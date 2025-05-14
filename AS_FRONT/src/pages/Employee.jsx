@@ -30,18 +30,25 @@ const EmployeePage = () => {
     // Fetch actual data from the API
     useEffect(() => {
         const fetchEmployees = async () => {
+            const API_BASE_URL =
+                import.meta.env.MODE === 'development'
+                    ? import.meta.env.VITE_API_URL_LOCAL
+                    : import.meta.env.VITE_API_URL_PROD;
+
             try {
-                const response = await axios.get(`${import.meta.env.VITE_API_URL}/api/employees`); // Replace with your actual API endpoint
+                const response = await axios.get(`${API_BASE_URL}/api/employees`);
                 setEmployees(response.data); // Assuming response.data contains the employee data
                 setLoading(false);
             } catch (error) {
-                setError("Failed to load employees. Please try again later.", error.message);
+                setError("Failed to load employees. Please try again later.");
+                console.error("Fetch error:", error.message);
                 setLoading(false);
             }
         };
 
         fetchEmployees();
     }, []);
+
 
     const filteredEmployees = employees.filter(emp => {
         const matchesDepartment =

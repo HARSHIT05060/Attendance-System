@@ -40,9 +40,14 @@ const EmployeeDetail = () => {
     useEffect(() => {
         const fetchEmployeeData = async () => {
             setLoading(true);
+
+            const API_BASE_URL =
+                import.meta.env.MODE === 'development'
+                    ? import.meta.env.VITE_API_URL_LOCAL
+                    : import.meta.env.VITE_API_URL_PROD;
+
             try {
-                // Replace with your actual API endpoint
-                const response = await fetch(`${import.meta.env.VITE_API_URL}/api/employees/${employeeId}`);
+                const response = await fetch(`${API_BASE_URL}/api/employees/${employeeId}`);
 
                 if (!response.ok) {
                     throw new Error(`Failed to fetch employee: ${response.status}`);
@@ -62,6 +67,7 @@ const EmployeeDetail = () => {
         fetchEmployeeData();
     }, [employeeId]);
 
+
     // Handle form updates
     const handleInputChange = (field, value) => {
         setEmployee(prev => ({
@@ -73,9 +79,14 @@ const EmployeeDetail = () => {
     // Save employee data to API
     const handleSaveClick = async () => {
         setLoading(true);
+
+        const API_BASE_URL =
+            import.meta.env.MODE === 'development'
+                ? import.meta.env.VITE_API_URL_LOCAL
+                : import.meta.env.VITE_API_URL_PROD;
+
         try {
-            // Replace with your actual API endpoint
-            const response = await fetch(`${import.meta.env.VITE_API_URL}/api/employees/${employeeId}`, {
+            const response = await fetch(`${API_BASE_URL}/api/employees/${employeeId}`, {
                 method: 'PUT',
                 headers: {
                     'Content-Type': 'application/json'
@@ -87,7 +98,6 @@ const EmployeeDetail = () => {
                 throw new Error(`Failed to update employee: ${response.status}`);
             }
 
-            // Optional: Update with the latest data from server
             const updatedData = await response.json();
             setEmployee(updatedData);
             setIsEditing(false);
@@ -100,14 +110,20 @@ const EmployeeDetail = () => {
         }
     };
 
+
     // Delete employee via API
     const handleDeleteClick = async () => {
         setLoading(true);
+
+        const API_BASE_URL =
+            import.meta.env.MODE === 'development'
+                ? import.meta.env.VITE_API_URL_LOCAL
+                : import.meta.env.VITE_API_URL_PROD;
+
         try {
-            const response = await fetch(`${import.meta.env.VITE_API_URL}/api/employees/${employeeId}`, {
+            const response = await fetch(`${API_BASE_URL}/api/employees/${employeeId}`, {
                 method: 'DELETE'
             });
-
 
             if (!response.ok) {
                 throw new Error(`Failed to delete employee: ${response.status}`);
@@ -119,9 +135,11 @@ const EmployeeDetail = () => {
         } catch (err) {
             console.error("Error deleting employee:", err);
             setError(`Failed to delete employee: ${err.message}`);
+        } finally {
             setLoading(false);
         }
     };
+
 
     // Function to get status color
     const getStatusColor = (status) => {

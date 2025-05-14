@@ -25,7 +25,12 @@ const LeaveApplication = () => {
         setIsSubmitting(true);
 
         try {
-            const response = await axios.post('http://localhost:5000/api/leaves', formData);
+            const API_BASE_URL =
+                import.meta.env.MODE === 'development'
+                    ? import.meta.env.VITE_API_URL_LOCAL
+                    : import.meta.env.VITE_API_URL_PROD;
+
+            const response = await axios.post(`${API_BASE_URL}/api/leaves`, formData);
 
             setNotification({
                 show: true,
