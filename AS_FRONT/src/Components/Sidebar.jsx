@@ -62,8 +62,9 @@ const Sidebar = () => {
             icon: Calendar,
             hasSubmenu: true,
             submenu: [
-                { label: 'Leave Requests', path: '/leaves/requests' },
-                { label: 'Holiday Calendar', path: '/leaves/calendar' },
+                { label: 'Leave Application', path: '/leaveapplication' },
+                { label: 'Leave Requests', path: '/leavestatusPage' },
+                { label: 'Holiday Calendar', path: '/holidaycalender' },
                 { label: 'Policy', path: '/leaves/policy' }
             ]
         },
