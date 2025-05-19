@@ -21,7 +21,7 @@ import { Link, useNavigate } from 'react-router-dom';
 
 const Sidebar = () => {
     const [collapsed, setCollapsed] = useState(true);
-    const [activeItem, setActiveItem] = useState('employees');
+    const [activeItem, setActiveItem] = useState('dashboard');
     const [hoveredItem, setHoveredItem] = useState(null);
     const [expandedSubmenu, setExpandedSubmenu] = useState(null);
     const [isHovering, setIsHovering] = useState(false);
