@@ -61,6 +61,7 @@ const Sidebar = () => {
             label: 'Leaves & Holidays',
             icon: Calendar,
             hasSubmenu: true,
+            path: '/leaveapplication',
             submenu: [
                 { label: 'Leave Application', path: '/leaveapplication' },
                 { label: 'Leave Requests', path: '/leavestatusPage' },
@@ -162,7 +163,7 @@ const Sidebar = () => {
             // Only auto-collapse if it was previously expanded by hovering
             setCollapsed(true);
         }
-    }, [isHovering]);
+    }, [collapsed, isHovering]);
 
     // Clean up any timers when component unmounts
     useEffect(() => {
