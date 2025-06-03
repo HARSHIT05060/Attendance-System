@@ -12,6 +12,11 @@ import LeaveStatusPage from './pages/Leave/LeaveStatus';
 import HolidayCalendar from './pages/Leave/HolidayCalendar';
 import UserManagement from './pages/Users/Usermanagement';
 import AddUser from './pages/Users/AddUser';
+import BulkAttendance from './pages/Payroll/BulkAttendance';
+import MonthlyPayroll from './pages/Payroll/MonthlyPayroll';
+import HourlyPayroll from './pages/Payroll/HourlyPayroll';
+import FinalizePayroll from './pages/Payroll/FinalizePayroll';
+
 
 const App = () => {
   useEffect(() => {
@@ -44,6 +49,10 @@ const App = () => {
               <Route exact path="/employee" element={<Employee />} />
               <Route path="/employee/add" element={<AddEmployee />} />
               <Route path="/employee/:id" element={<EmployeeDetail />} />
+              <Route path="/bluk-attendance" element={<BulkAttendance />} />
+              <Route path="/monthly-payroll" element={<MonthlyPayroll />} />
+              <Route path="/hourly-payroll" element={<HourlyPayroll />} />
+              <Route path="/finalize-payroll" element={<FinalizePayroll />} />
             </Routes>
           </main>
         </div>

@@ -5,6 +5,8 @@ const connectDB = require('./config/db');  // Correct path to db.js
 const employeeRoutes = require('./routes/employeeRoutes'); // Correct path to employeeRoutes.js
 const leaveRoutes = require('./routes/leaveRoutes');
 const userRoutes = require('./routes/userRoutes');
+const attendanceRoutes = require('./routes/attendanceRoutes');
+const payrollRoutes = require('./routes/payrollRoutes');
 
 dotenv.config(); // Load environment variables
 
@@ -31,6 +33,9 @@ connectDB();
 app.use('/api/users', userRoutes);
 app.use('/api', employeeRoutes);  // Employee routes
 app.use('/api', leaveRoutes);     // Leave routes
+app.use('/api/attendance', attendanceRoutes);
+app.use('/api/payroll', payrollRoutes);
+
 app.get("/api/data", (req, res) => {
     res.json({ message: "Hello from backend!" });
 });

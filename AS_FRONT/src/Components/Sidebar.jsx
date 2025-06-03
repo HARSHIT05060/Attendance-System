@@ -77,11 +77,13 @@ const Sidebar = () => {
             label: 'Payroll',
             icon: DollarSign,
             hasSubmenu: true,
+            path: '/bluk-attendance',
             tag: 'New',
             submenu: [
-                { label: 'Process Payroll', path: '/payroll/process' },
-                { label: 'Salary Structure', path: '/payroll/salary-structure' },
-                { label: 'Tax Settings', path: '/payroll/tax-settings' }
+                { label: 'Bluk Attendance', path: '/bluk-attendance' },
+                { label: 'Monthly Payroll', path: '/monthly-payroll' },
+                { label: 'Hourly Payroll', path: '/Hourly-payroll' },
+                { label: 'Finalize Payroll', path: '/Finalize-payroll' },
             ]
         },
 
