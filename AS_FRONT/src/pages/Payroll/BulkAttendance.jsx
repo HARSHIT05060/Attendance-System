@@ -5,8 +5,7 @@ import isoWeek from "dayjs/plugin/isoWeek";
 
 dayjs.extend(isoWeek);
 
-// ✅ Helper outside the component
-const isFutureDate = (date) => dayjs(date).isAfter(dayjs(), 'day');
+const isFutureDate = (date) => dayjs(date).isAfter(dayjs(), "day");
 
 const getWeekRange = (dateStr) => {
     const date = dayjs(dateStr);
@@ -25,7 +24,6 @@ const weekDates = (selectedDate) => {
     );
 };
 
-// ✅ Dynamic base URL based on environment
 const API_BASE_URL =
     import.meta.env.MODE === "development"
         ? import.meta.env.VITE_API_URL_LOCAL
@@ -35,6 +33,9 @@ const BulkAttendance = () => {
     const [employees, setEmployees] = useState([]);
     const [selectedDate, setSelectedDate] = useState(dayjs().format("YYYY-MM-DD"));
     const [attendanceData, setAttendanceData] = useState({});
+    const [originalAttendanceData, setOriginalAttendanceData] = useState({});
+    const [isChanged, setIsChanged] = useState(false);
+    const [isSubmitting, setIsSubmitting] = useState(false);
 
     useEffect(() => {
         const fetchEmployees = async () => {
@@ -54,6 +55,7 @@ const BulkAttendance = () => {
 
         const fetchAttendance = async () => {
             const { startDate, endDate } = getWeekRange(selectedDate);
+            const newAttendanceData = {};
 
             await Promise.all(
                 employees.map(async (emp) => {
@@ -63,22 +65,30 @@ const BulkAttendance = () => {
                             { params: { startDate, endDate } }
                         );
                         const employeeRecords = res.data.attendance;
-                        setAttendanceData((prev) => ({
-                            ...prev,
-                            [emp.employeeId]: employeeRecords.reduce((map, record) => {
-                                map[record.date] = record.status;
-                                return map;
-                            }, {}),
-                        }));
+                        newAttendanceData[emp.employeeId] = employeeRecords.reduce((map, record) => {
+                            map[record.date] = record.status;
+                            return map;
+                        }, {});
                     } catch (err) {
                         console.error(err);
+                        newAttendanceData[emp.employeeId] = {};
                     }
                 })
             );
+
+            setAttendanceData(newAttendanceData);
+            setOriginalAttendanceData(newAttendanceData);
+            setIsChanged(false);
         };
 
         fetchAttendance();
     }, [selectedDate, employees]);
+
+    // Check if attendanceData differs from originalAttendanceData
+    useEffect(() => {
+        const changed = JSON.stringify(attendanceData) !== JSON.stringify(originalAttendanceData);
+        setIsChanged(changed);
+    }, [attendanceData, originalAttendanceData]);
 
     const handleAttendanceChange = (employeeId, date, status) => {
         setAttendanceData((prev) => ({
@@ -88,14 +98,41 @@ const BulkAttendance = () => {
                 [date]: status,
             },
         }));
+    };
 
-        axios
-            .put(`${API_BASE_URL}/api/attendance/update`, {
-                employeeId,
-                date,
-                status,
-            })
-            .catch(console.error);
+    const handleSubmit = async () => {
+        setIsSubmitting(true);
+        try {
+            const updates = [];
+
+            for (const empId in attendanceData) {
+                for (const date in attendanceData[empId]) {
+                    const currentStatus = attendanceData[empId][date];
+                    const originalStatus = originalAttendanceData[empId]?.[date] || "";
+
+                    if (currentStatus !== originalStatus) {
+                        updates.push({ employeeId: empId, date, status: currentStatus });
+                    }
+                }
+            }
+
+            await Promise.all(
+                updates.map(({ employeeId, date, status }) =>
+                    axios.put(`${API_BASE_URL}/api/attendance/update`, {
+                        employeeId,
+                        date,
+                        status,
+                    })
+                )
+            );
+
+            setOriginalAttendanceData({ ...attendanceData });
+            setIsChanged(false);
+        } catch (error) {
+            console.error("Failed to update attendance", error);
+            // optionally show user feedback here
+        }
+        setIsSubmitting(false);
     };
 
     const handleWeekChange = (direction) => {
@@ -106,7 +143,7 @@ const BulkAttendance = () => {
     return (
         <div>
             <div className="flex items-center justify-between mb-4">
-                <h1 className="text-2xl font-bold">Weekly Attendance</h1>
+                <h1 className="text-2xl font-bold">Bulk Attendance</h1>
                 <input
                     type="date"
                     value={selectedDate}
@@ -115,9 +152,32 @@ const BulkAttendance = () => {
                 />
             </div>
 
-            <div className="flex justify-between mb-4">
-                <button onClick={() => handleWeekChange(-1)} className="bg-gray-300 px-4 py-2 rounded">Previous Week</button>
-                <button onClick={() => handleWeekChange(1)} className="bg-gray-300 px-4 py-2 rounded">Next Week</button>
+            <div className="flex justify-between mb-4 items-center space-x-2">
+                <div>
+                    <button
+                        onClick={() => handleWeekChange(-1)}
+                        className="bg-gray-300 px-4 py-2 rounded"
+                        disabled={isSubmitting}
+                    >
+                        Previous Week
+                    </button>
+                    <button
+                        onClick={() => handleWeekChange(1)}
+                        className="bg-gray-300 px-4 py-2 rounded ml-2"
+                        disabled={isSubmitting}
+                    >
+                        Next Week
+                    </button>
+                </div>
+
+                <button
+                    onClick={handleSubmit}
+                    disabled={!isChanged || isSubmitting}
+                    className={`px-4 py-2 rounded font-semibold text-white ${isChanged ? "bg-blue-600 hover:bg-blue-700" : "bg-gray-400 cursor-not-allowed"
+                        }`}
+                >
+                    {isSubmitting ? "Submitting..." : "Submit Changes"}
+                </button>
             </div>
 
             <table className="w-full border border-gray-300">
@@ -146,11 +206,9 @@ const BulkAttendance = () => {
                                         onChange={(e) =>
                                             handleAttendanceChange(emp.employeeId, date, e.target.value)
                                         }
-                                        className={`border rounded px-1 py-0.5 w-full
-                                        ${isFutureDate(date)
-                                                ? "bg-gray-100 cursor-not-allowed opacity-70"
-                                                : ""}`}
-                                        disabled={isFutureDate(date)}
+                                        className={`border rounded px-1 py-0.5 w-full ${isFutureDate(date) ? "bg-gray-100 cursor-not-allowed opacity-70" : ""
+                                            }`}
+                                        disabled={isFutureDate(date) || isSubmitting}
                                         title={isFutureDate(date) ? "Cannot update future dates" : ""}
                                     >
                                         <option value="">--</option>

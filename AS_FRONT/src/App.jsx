@@ -49,7 +49,7 @@ const App = () => {
               <Route exact path="/employee" element={<Employee />} />
               <Route path="/employee/add" element={<AddEmployee />} />
               <Route path="/employee/:id" element={<EmployeeDetail />} />
-              <Route path="/bluk-attendance" element={<BulkAttendance />} />
+              <Route path="/bulk-attendance" element={<BulkAttendance />} />
               <Route path="/monthly-payroll" element={<MonthlyPayroll />} />
               <Route path="/hourly-payroll" element={<HourlyPayroll />} />
               <Route path="/finalize-payroll" element={<FinalizePayroll />} />

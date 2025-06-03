@@ -77,10 +77,10 @@ const Sidebar = () => {
             label: 'Payroll',
             icon: DollarSign,
             hasSubmenu: true,
-            path: '/bluk-attendance',
+            path: '/bulk-attendance',
             tag: 'New',
             submenu: [
-                { label: 'Bluk Attendance', path: '/bluk-attendance' },
+                { label: 'Bulk Attendance', path: '/bulk-attendance' },
                 { label: 'Monthly Payroll', path: '/monthly-payroll' },
                 { label: 'Hourly Payroll', path: '/Hourly-payroll' },
                 { label: 'Finalize Payroll', path: '/Finalize-payroll' },
