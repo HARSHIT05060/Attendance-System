@@ -87,7 +87,20 @@ export default function BulkAttendance() {
                         // Convert array of records to {date: status} map
                         const records = res.data.attendance || [];
                         newAttendance[emp.employeeId] = records.reduce((acc, rec) => {
-                            acc[rec.date] = rec.status;
+                            // Ensure date is in YYYY-MM-DD format
+                            let dateKey = rec.date;
+                            if (rec.date && typeof rec.date === 'string' && rec.date.includes('T')) {
+                                // If date comes as ISO string, extract YYYY-MM-DD part
+                                dateKey = rec.date.split('T')[0];
+                            } else if (rec.date && rec.date instanceof Date) {
+                                // If date comes as Date object, convert to YYYY-MM-DD
+                                dateKey = rec.date.toISOString().split('T')[0];
+                            } else if (rec.date && typeof rec.date === 'string' && rec.date.includes('-')) {
+                                // If already in YYYY-MM-DD format, use as is
+                                dateKey = rec.date;
+                            }
+
+                            acc[dateKey] = rec.status;
                             return acc;
                         }, {});
                     } catch (err) {
@@ -97,8 +110,9 @@ export default function BulkAttendance() {
                 })
             );
 
+            console.log('Fetched attendance data:', newAttendance); // Debug log
             setAttendanceData(newAttendance);
-            setOriginalAttendanceData(newAttendance);
+            setOriginalAttendanceData(JSON.parse(JSON.stringify(newAttendance))); // Deep clone
             setIsChanged(false);
         };
 
@@ -132,11 +146,19 @@ export default function BulkAttendance() {
                 for (const date in attendanceData[empId]) {
                     const newStatus = attendanceData[empId][date];
                     const oldStatus = originalAttendanceData[empId]?.[date] || "";
-                    if (newStatus !== oldStatus) {
-                        updates.push({ employeeId: empId, date, status: newStatus });
+                    if (newStatus !== oldStatus && newStatus !== "") {
+                        // Ensure date is in proper format before sending
+                        const formattedDate = dayjs(date).format('YYYY-MM-DD');
+                        updates.push({
+                            employeeId: empId,
+                            date: formattedDate,
+                            status: newStatus
+                        });
                     }
                 }
             }
+
+            console.log('Sending updates:', updates); // Debug log
 
             // Make parallel API calls
             await Promise.all(
@@ -149,7 +171,7 @@ export default function BulkAttendance() {
                 )
             );
 
-            setOriginalAttendanceData({ ...attendanceData });
+            setOriginalAttendanceData(JSON.parse(JSON.stringify(attendanceData))); // Deep clone
             setIsChanged(false);
             setNotification({ type: 'success', message: 'Attendance updated successfully!' });
         } catch (error) {

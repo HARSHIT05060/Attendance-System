@@ -63,22 +63,18 @@ const updateAttendance = async (req, res) => {
     try {
         const { employeeId, date, status } = req.body;
 
-        if (!employeeId || !date || !status) {
-            return res.status(400).json({ message: "employeeId, date, and status are required" });
-        }
+        // Convert date string to Date object for MongoDB
+        const dateObj = new Date(date + 'T00:00:00.000Z'); // Ensure UTC
 
-        const formattedDate = formatDate(date);
-
-        const updated = await Attendance.findOneAndUpdate(
-            { employeeId, date: formattedDate },
-            { $set: { status } },
+        await Attendance.findOneAndUpdate(
+            { employeeId, date: dateObj },
+            { employeeId, date: dateObj, status },
             { upsert: true, new: true }
         );
 
-        res.status(200).json({ message: "Attendance updated", record: updated });
+        res.json({ success: true });
     } catch (error) {
-        console.error("Error updating attendance:", error.stack || error);
-        res.status(500).json({ message: "Internal Server Error" });
+        res.status(500).json({ error: error.message });
     }
 };
 
