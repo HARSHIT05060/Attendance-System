@@ -1,6 +1,11 @@
 import React, { useState, useEffect, useCallback, useMemo } from 'react';
 import { Calendar, Users, AlertCircle, Loader2, RotateCcw, Filter } from 'lucide-react';
 
+
+const API_BASE_URL =
+  import.meta.env.MODE === "development"
+    ? import.meta.env.VITE_API_URL_LOCAL
+    : import.meta.env.VITE_API_URL_PROD;
 // API service layer with enhanced error handling
 const payrollService = {
   async fetchMonthlyPayroll(year, month) {
@@ -9,9 +14,7 @@ const payrollService = {
       const monthStr = month.toString().padStart(2, '0');
       const yearStr = year.toString();
 
-      console.log(`Fetching payroll for: ${yearStr}-${monthStr}`);
-
-      const response = await fetch(`http://localhost:5000/api/payroll/monthly/all?year=${yearStr}&month=${monthStr}`, {
+      const response = await fetch(`${API_BASE_URL}/api/payroll/monthly/all?year=${yearStr}&month=${monthStr}`, {
         method: 'GET',
         headers: {
           'Content-Type': 'application/json',
@@ -41,7 +44,6 @@ const payrollService = {
       }
 
       const data = await response.json();
-      console.log('Raw API Response:', data);
 
       return data;
     } catch (error) {
@@ -69,43 +71,6 @@ const MONTHS = [
 const CURRENT_YEAR = new Date().getFullYear();
 const CURRENT_MONTH = new Date().getMonth() + 1;
 
-// Development mode toggle - set to true to use mock data
-const DEVELOPMENT_MODE = false;
-
-// Mock data for development/testing
-const MOCK_PAYROLL_DATA = [
-  {
-    _id: '1',
-    employeeId: 'EMP001',
-    employeeName: 'John Doe',
-    month: CURRENT_MONTH,
-    year: CURRENT_YEAR,
-    totalWorkingDays: 22,
-    totalPaidDays: 20,
-    payableSalary: 5500.00
-  },
-  {
-    _id: '2',
-    employeeId: 'EMP002',
-    employeeName: 'Jane Smith',
-    month: CURRENT_MONTH,
-    year: CURRENT_YEAR,
-    totalWorkingDays: 22,
-    totalPaidDays: 22,
-    payableSalary: 6200.00
-  },
-  {
-    _id: '3',
-    employeeId: 'EMP003',
-    employeeName: 'Mike Johnson',
-    month: CURRENT_MONTH,
-    year: CURRENT_YEAR,
-    totalWorkingDays: 22,
-    totalPaidDays: 18,
-    payableSalary: 4800.00
-  }
-];
-
 // Custom hook for payroll data management
 const usePayrollData = () => {
   const [year, setYear] = useState(CURRENT_YEAR);
@@ -119,27 +84,20 @@ const usePayrollData = () => {
     setError(null);
 
     try {
-      if (DEVELOPMENT_MODE) {
-        await new Promise(resolve => setTimeout(resolve, 1000));
-        setPayrollData(MOCK_PAYROLL_DATA);
-      } else {
-        const data = await payrollService.fetchMonthlyPayroll(selectedYear, selectedMonth);
-        console.log('Processed payroll data:', data);
+      const data = await payrollService.fetchMonthlyPayroll(selectedYear, selectedMonth);
 
-        let processedData = [];
-        if (Array.isArray(data)) {
-          processedData = data;
-        } else if (data && data.data && Array.isArray(data.data)) {
-          processedData = data.data;
-        } else if (data && data.payroll && Array.isArray(data.payroll)) {
-          processedData = data.payroll;
-        } else if (data && typeof data === 'object') {
-          processedData = [data];
-        }
-
-        console.log('Final processed data:', processedData);
-        setPayrollData(processedData);
+      let processedData = [];
+      if (Array.isArray(data)) {
+        processedData = data;
+      } else if (data && data.data && Array.isArray(data.data)) {
+        processedData = data.data;
+      } else if (data && data.payroll && Array.isArray(data.payroll)) {
+        processedData = data.payroll;
+      } else if (data && typeof data === 'object') {
+        processedData = [data];
       }
+      setPayrollData(processedData);
+
     } catch (err) {
       setError(err.message);
       setPayrollData([]);
@@ -201,7 +159,6 @@ const getSalaryValue = (record) => {
       }
 
       if (!isNaN(value) && isFinite(value)) {
-        console.log(`Found salary value: ${value} from field: ${field}`);
         return value;
       }
     }
