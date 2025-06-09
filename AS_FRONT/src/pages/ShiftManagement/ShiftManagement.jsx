@@ -1,6 +1,9 @@
 import React, { useEffect, useState } from "react";
 import axios from "axios";
 
+
+// ================  needs api changes remain  ================
+
 const daysOfWeek = [
     { short: "S", full: "Sunday" },
     { short: "M", full: "Monday" },
@@ -174,7 +177,7 @@ const ShiftManagement = () => {
                         <option value="">Select Employee</option>
                         {employees.map((emp) => (
                             <option key={emp._id} value={emp._id}>
-                                {emp.fullName}
+                                {emp.name}
                             </option>
                         ))}
                     </select>
@@ -220,7 +223,7 @@ const ShiftManagement = () => {
                     <option value="">Select Employee</option>
                     {employees.map((emp) => (
                         <option key={emp._id} value={emp._id}>
-                            {emp.fullName}
+                            {emp.name}
                         </option>
                     ))}
                 </select>

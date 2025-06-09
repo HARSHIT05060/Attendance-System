@@ -47,7 +47,7 @@ const getWeekDates = (selectedDate) => {
 export default function BulkAttendance() {
     const [employees, setEmployees] = useState([]);
     const [selectedDate, setSelectedDate] = useState(dayjs().format("YYYY-MM-DD"));
-    const [attendanceData, setAttendanceData] = useState({}); // { employeeId: { date: status } }
+    const [attendanceData, setAttendanceData] = useState({}); 
     const [originalAttendanceData, setOriginalAttendanceData] = useState({});
     const [isChanged, setIsChanged] = useState(false);
     const [isSaving, setIsSaving] = useState(false);
@@ -81,12 +81,12 @@ export default function BulkAttendance() {
                 employees.map(async (emp) => {
                     try {
                         const res = await axios.get(
-                            `${API_BASE_URL}/api/attendance/employee/${emp.employeeId}/week`,
+                            `${API_BASE_URL}/api/attendance/employee/${emp.employeeCode}/week`,
                             { params: { startDate, endDate } }
                         );
                         // Convert array of records to {date: status} map
                         const records = res.data.attendance || [];
-                        newAttendance[emp.employeeId] = records.reduce((acc, rec) => {
+                        newAttendance[emp.employeeCode] = records.reduce((acc, rec) => {
                             // Ensure date is in YYYY-MM-DD format
                             let dateKey = rec.date;
                             if (rec.date && typeof rec.date === 'string' && rec.date.includes('T')) {
@@ -104,8 +104,8 @@ export default function BulkAttendance() {
                             return acc;
                         }, {});
                     } catch (err) {
-                        console.error(`Failed to fetch attendance for ${emp.employeeId}`, err);
-                        newAttendance[emp.employeeId] = {};
+                        console.error(`Failed to fetch attendance for ${emp.employeeCode}`, err);
+                        newAttendance[emp.employeeCode] = {};
                     }
                 })
             );
@@ -125,12 +125,12 @@ export default function BulkAttendance() {
     }, [attendanceData, originalAttendanceData]);
 
     // Update attendance on select change
-    const handleAttendanceChange = (employeeId, date, value) => {
+    const handleAttendanceChange = (employeeCode, date, value) => {
         if (isFutureDate(date)) return; // don't allow future edits
         setAttendanceData((prev) => ({
             ...prev,
-            [employeeId]: {
-                ...prev[employeeId],
+            [employeeCode]: {
+                ...prev[employeeCode],
                 [date]: value,
             },
         }));
@@ -150,7 +150,7 @@ export default function BulkAttendance() {
                         // Ensure date is in proper format before sending
                         const formattedDate = dayjs(date).format('YYYY-MM-DD');
                         updates.push({
-                            employeeId: empId,
+                            employeeCode: empId,
                             date: formattedDate,
                             status: newStatus
                         });
@@ -162,9 +162,9 @@ export default function BulkAttendance() {
 
             // Make parallel API calls
             await Promise.all(
-                updates.map(({ employeeId, date, status }) =>
+                updates.map(({ employeeCode, date, status }) =>
                     axios.put(`${API_BASE_URL}/api/attendance/update`, {
-                        employeeId,
+                        employeeCode,
                         date,
                         status,
                     })
@@ -367,7 +367,7 @@ export default function BulkAttendance() {
 
                                 {employees.map((emp, index) => (
                                     <tr
-                                        key={emp.employeeId}
+                                        key={emp.employeeCode}
                                         className={`border-b border-slate-100 hover:bg-blue-50/30 transition-all duration-200 ${index % 2 === 0 ? 'bg-white/50' : 'bg-slate-25/50'} group`}
                                     >
                                         {/* Employee Info */}
@@ -375,13 +375,13 @@ export default function BulkAttendance() {
                                             <div className="flex items-center gap-4">
                                                 <div className="relative">
                                                     <div className="w-10 h-10 bg-gradient-to-br from-blue-500 to-purple-600 rounded-full flex items-center justify-center text-white text-sm font-bold shadow-md">
-                                                        {(emp.name || emp.employeeId).charAt(0).toUpperCase()}
+                                                        {(emp.name || emp.employeeCode).charAt(0).toUpperCase()}
                                                     </div>
                                                     <div className="absolute -bottom-1 -right-1 w-4 h-4 bg-emerald-500 rounded-full border-2 border-white"></div>
                                                 </div>
                                                 <div className="min-w-0 flex-1">
-                                                    <div className="font-bold text-slate-900 truncate">{emp.employeeId}</div>
-                                                    <div className="text-sm text-slate-600 truncate">{emp.fullName || "Unnamed"}</div>
+                                                    <div className="font-bold text-slate-900 truncate">{emp.employeeCode}</div>
+                                                    <div className="text-sm text-slate-600 truncate">{emp.name || "Unnamed"}</div>
                                                     <div className="text-xs text-slate-500 truncate">{emp.department || "No Department"}</div>
                                                 </div>
                                             </div>
@@ -389,7 +389,7 @@ export default function BulkAttendance() {
 
                                         {/* Attendance Columns */}
                                         {weekDates.map((date) => {
-                                            const status = attendanceData[emp.employeeId]?.[date] || "";
+                                            const status = attendanceData[emp.employeeCode]?.[date] || "";
                                             const disabled = isFutureDate(date);
                                             const isToday = dayjs(date).isSame(dayjs(), 'day');
                                             const isWeekend = dayjs(date).day() === 0 || dayjs(date).day() === 6;
@@ -404,7 +404,7 @@ export default function BulkAttendance() {
                                                         value={status}
                                                         disabled={disabled}
                                                         onChange={(e) =>
-                                                            handleAttendanceChange(emp.employeeId, date, e.target.value)
+                                                            handleAttendanceChange(emp.employeeCode, date, e.target.value)
                                                         }
                                                         className={`w-full px-3 py-2.5 text-sm rounded-xl border-2 transition-all duration-200 font-semibold shadow-sm hover:shadow-md focus:shadow-lg
                                 ${disabled
@@ -414,7 +414,7 @@ export default function BulkAttendance() {
                                 ${status ? attendanceOptions.find(opt => opt.value === status)?.className || 'text-slate-700' : 'text-slate-500'
                                                             }`}
                                                         style={{ minWidth: 130 }}
-                                                        aria-label={`Attendance for ${emp.name || emp.employeeId} on ${date}`}
+                                                        aria-label={`Attendance for ${emp.name || emp.employeeCode} on ${date}`}
                                                     >
                                                         {attendanceOptions.map(({ value, label, className }) => (
                                                             <option key={value || "default"} value={value} className={className}>

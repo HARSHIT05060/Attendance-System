@@ -199,19 +199,19 @@ const EmployeeDetail = () => {
                                         {employee.photo ? (
                                             <img
                                                 src={employee.photo}
-                                                alt={employee.fullName}
+                                                alt={employee.name}
                                                 className="h-32 w-32 rounded-full border-4 border-white object-cover"
                                             />
                                         ) : (
                                             <div className="h-32 w-32 rounded-full bg-white flex items-center justify-center text-blue-600 text-3xl font-bold">
-                                                {employee.fullName?.split(' ').map(name => name[0]).join('')}
+                                                {employee.name?.split(' ').map(name => name[0]).join('')}
                                             </div>
                                         )}
                                     </div>
                                 </div>
 
                                 <div className="p-4">
-                                    <h2 className="text-xl font-bold text-center text-gray-800 mb-1">{employee.fullName}</h2>
+                                    <h2 className="text-xl font-bold text-center text-gray-800 mb-1">{employee.name}</h2>
                                     <p className="text-center text-gray-500 mb-4">{employee.designation}</p>
 
                                     <div className="pt-4 border-t border-gray-200">
@@ -219,7 +219,7 @@ const EmployeeDetail = () => {
                                             <Tag size={18} className="text-gray-400 mr-3" />
                                             <p className="text-sm">
                                                 <span className="text-gray-500">Employee ID:</span>{' '}
-                                                <span className="font-medium text-gray-900">{employee.employeeId}</span>
+                                                <span className="font-medium text-gray-900">{employee.employeeCode}</span>
                                             </p>
                                         </div>
 
@@ -281,8 +281,8 @@ const EmployeeDetail = () => {
                                             </div>
                                             <input
                                                 type="text"
-                                                value={employee.fullName || ''}
-                                                onChange={(e) => handleInputChange('fullName', e.target.value)}
+                                                value={employee.name || ''}
+                                                onChange={(e) => handleInputChange('name', e.target.value)}
                                                 disabled={!isEditing}
                                                 className={`pl-10 block w-full shadow-sm rounded-md py-2 px-3 border ${isEditing
                                                     ? 'border-gray-300 focus:ring-blue-500 focus:border-blue-500'
@@ -301,8 +301,8 @@ const EmployeeDetail = () => {
                                             </div>
                                             <input
                                                 type="text"
-                                                value={employee.employeeId || ''}
-                                                onChange={(e) => handleInputChange('employeeId', e.target.value)}
+                                                value={employee.employeeCode || ''}
+                                                onChange={(e) => handleInputChange('employeeCode', e.target.value)}
                                                 disabled={!isEditing}
                                                 className={`pl-10 block w-full shadow-sm rounded-md py-2 px-3 border ${isEditing
                                                     ? 'border-gray-300 focus:ring-blue-500 focus:border-blue-500'
@@ -339,8 +339,8 @@ const EmployeeDetail = () => {
                                             </div>
                                             <input
                                                 type="email"
-                                                value={employee.personalEmail || ''}
-                                                onChange={(e) => handleInputChange('personalEmail', e.target.value)}
+                                                value={employee.email || ''}
+                                                onChange={(e) => handleInputChange('email', e.target.value)}
                                                 disabled={!isEditing}
                                                 className={`pl-10 block w-full shadow-sm rounded-md py-2 px-3 border ${isEditing
                                                     ? 'border-gray-300 focus:ring-blue-500 focus:border-blue-500'
@@ -359,8 +359,8 @@ const EmployeeDetail = () => {
                                             </div>
                                             <input
                                                 type="text"
-                                                value={employee.phoneNumber || ''}
-                                                onChange={(e) => handleInputChange('phoneNumber', e.target.value)}
+                                                value={employee.mobile || ''}
+                                                onChange={(e) => handleInputChange('mobile', e.target.value)}
                                                 disabled={!isEditing}
                                                 className={`pl-10 block w-full shadow-sm rounded-md py-2 px-3 border ${isEditing
                                                     ? 'border-gray-300 focus:ring-blue-500 focus:border-blue-500'

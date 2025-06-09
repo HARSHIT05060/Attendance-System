@@ -1,22 +1,136 @@
 const Employee = require('../models/Employee');
-const nodemailer = require('nodemailer');
-const generatePassword = require('generate-password');
-const bcrypt = require('bcrypt');
 require('dotenv').config();
 
-// Email setup
-const transporter = nodemailer.createTransport({
-    service: process.env.SMTP_SERVICE,
-    auth: {
-        user: process.env.SMTP_USER,
-        pass: process.env.SMTP_PASS
-    }
-});
+// Create a new employee
+const createEmployee = async (req, res) => {
+    try {
+        const {
+            // Basic Details
+            employeeCode,
+            name,
+            mobile,
+            email,
+            gender,
+            branch,
+            department,
+            designation,
+            employmentType,
+            salaryType,
+            salary,
+            address,
 
-// Get all employees (summary)
+            // Bank Details
+            bankName,
+            branchName,
+            accountNo,
+            ifscCode,
+
+            // Legal Documents
+            aadharCard,
+            drivingLicence,
+            panCard,
+            photo,
+
+            // Contact Information
+            emergencyContactNo,
+            contactPersonName,
+            relation,
+            emergencyAddress,
+
+            // Personal Information
+            dateOfBirth,
+            dateOfJoining,
+
+            // References
+            references
+        } = req.body;
+
+        // Validation for required fields
+        if (!employeeCode || !name || !mobile || !gender || !branch || !department || !designation) {
+            return res.status(400).json({
+                message: 'Employee Code, Name, Mobile, Gender, Branch, Department, and Designation are required.'
+            });
+        }
+
+        // Check if employee code already exists
+        const existingEmployee = await Employee.findOne({ employeeCode });
+        if (existingEmployee) {
+            return res.status(400).json({ message: 'Employee code already exists.' });
+        }
+
+        // Create new employee
+        const newEmployee = new Employee({
+            // Basic Details
+            employeeCode,
+            name,
+            mobile,
+            email, // personal email
+            gender,
+            branch,
+            department,
+            designation,
+            employmentType,
+            salaryType,
+            salary,
+            address,
+
+            // Bank Details
+            bankName,
+            branchName,
+            accountNo,
+            ifscCode,
+
+            // Legal Documents
+            aadharCard,
+            drivingLicence,
+            panCard,
+            photo,
+
+            // Contact Information
+            emergencyContactNo,
+            contactPersonName,
+            relation,
+            emergencyAddress,
+
+            // Personal Information
+            dateOfBirth: dateOfBirth ? new Date(dateOfBirth) : null,
+            dateOfJoining: dateOfJoining ? new Date(dateOfJoining) : null,
+
+            // References
+            references: references || [],
+
+            // System fields
+            status: 'active'
+        });
+
+        const savedEmployee = await newEmployee.save();
+
+        res.status(201).json({
+            message: 'Employee created successfully',
+            employee: savedEmployee
+        });
+
+    } catch (error) {
+        console.error('Error creating employee:', error);
+
+        if (error.code === 11000) {
+            // Duplicate key error
+            const field = Object.keys(error.keyPattern)[0];
+            return res.status(400).json({
+                message: `${field} already exists. Please use a different value.`
+            });
+        }
+
+        res.status(500).json({ message: 'Failed to create employee' });
+    }
+};
+
+// Get all employees
 const getAllEmployees = async (req, res) => {
     try {
-        const employees = await Employee.find({}, 'photo fullName employeeId email phoneNumber joiningDate designation department salary status shift biometricFaceRecognition biometricFingerprint photo'); // Specify the fields to return
+        const employees = await Employee.find({},
+            'photo name employeeCode email mobile dateOfJoining designation department salary status shift biometricFaceRecognition biometricFingerprint'
+        );
         res.json(employees);
     } catch (error) {
         res.status(500).json({ message: error.message });
@@ -32,24 +146,7 @@ const getEmployeeById = async (req, res) => {
             return res.status(404).json({ message: "Employee not found" });
         }
 
-        res.json({
-            _id: employee._id,
-            fullName: employee.fullName,
-            employeeId: employee.employeeId,
-            email: employee.email,
-            personalEmail: employee.personalEmail,
-            phoneNumber: employee.phoneNumber,
-            designation: employee.designation,
-            department: employee.department,
-            salary: employee.salary,
-            joiningDate: employee.joiningDate,
-            bankAccountDetails: employee.bankAccountDetails,
-            status: employee.status,
-            shift: employee.shift,
-            biometricFaceRecognition: employee.biometricFaceRecognition,
-            biometricFingerprint: employee.biometricFingerprint,
-            photo: employee.photo
-        });
+        res.json(employee);
     } catch (error) {
         console.error(error);
         res.status(500).json({ message: "Server Error" });
@@ -58,24 +155,26 @@ const getEmployeeById = async (req, res) => {
 
 // Update an employee by ID
 const updateEmployee = async (req, res) => {
-    const { id } = req.params;               // Extract employee ID from request params
-    const updatedEmployee = req.body;        // Get the updated employee data from the request body
+    const { id } = req.params;
+    const updatedEmployee = req.body;
 
     try {
-        // Find the employee by ID and update with the new data
-        const employee = await Employee.findByIdAndUpdate(id, updatedEmployee, { new: true });
+        const employee = await Employee.findByIdAndUpdate(id, updatedEmployee, {
+            new: true,
+            runValidators: true
+        });
 
         if (!employee) {
-            return res.status(404).json({ message: 'Employee not found' }); // Handle case if employee is not found
+            return res.status(404).json({ message: 'Employee not found' });
         }
 
-        // Return the updated employee data as the response
         res.json(employee);
     } catch (error) {
         console.error('Error updating employee:', error);
-        res.status(500).json({ message: 'Failed to update employee data' }); // Handle internal server errors
+        res.status(500).json({ message: 'Failed to update employee data' });
     }
 };
+
 // Delete an employee by ID
 const deleteEmployee = async (req, res) => {
     const { id } = req.params;
@@ -93,94 +192,6 @@ const deleteEmployee = async (req, res) => {
         res.status(500).json({ message: 'Failed to delete employee' });
     }
 };
-
-
-// Create a new employee
-const createEmployee = async (req, res) => {
-    try {
-        const {
-            fullName,
-            employeeId,
-            personalEmail,
-            phoneNumber,
-            designation,
-            department,
-            salary,
-            status,
-            shift,
-            bankAccountDetails,
-            joiningDate,
-            biometricFaceRecognition,
-            biometricFingerprint,
-            photo
-        } = req.body;
-
-        if (!fullName || !personalEmail) {
-            return res.status(400).json({ message: 'Full name and personal email are required.' });
-        }
-
-        // 1) Company email
-        const companyEmail = `ezee.${fullName.replace(/\s+/g, '').toLowerCase()}@gmail.com`;
-
-        // 2) Generate & hash password
-        const plainPassword = generatePassword.generate({
-            length: 10,
-            numbers: true,
-            symbols: true,
-            uppercase: true,
-            lowercase: true,
-            strict: true
-        });
-        const passwordHash = await bcrypt.hash(plainPassword, 10);
-
-        // 3) Create and save Employee
-        const newEmployee = new Employee({
-            fullName,
-            employeeId,
-            personalEmail,
-            email: companyEmail,
-            passwordHash,
-            phoneNumber,
-            designation,
-            department,
-            salary,
-            status,
-            shift,
-            bankAccountDetails,
-            joiningDate,
-            biometricFaceRecognition,
-            biometricFingerprint,
-            photo
-        });
-        const savedEmployee = await newEmployee.save();
-
-        // 4) Send credentials to personal email
-        const mailOptions = {
-            from: 'yourcompany@gmail.com',
-            to: personalEmail,
-            subject: 'Welcome to Ezee – Your Account Credentials',
-            html: `
-        <p>Hello ${fullName},</p>
-        <p>Your Ezee account has been created. Here are your login details:</p>
-        <ul>
-          <li><strong>Company Email:</strong> ${companyEmail}</li>
-          <li><strong>Password:</strong> ${plainPassword}</li>
-        </ul>
-        <p>Please log in at <a href="https://yourcompany.com/login">https://yourcompany.com/login</a> and change your password immediately.</p>
-        <p>Regards,<br/>Ezee HR Team</p>
-      `
-        };
-        await transporter.sendMail(mailOptions);
-
-        // 5) Respond
-        res.status(201).json(savedEmployee);
-
-    } catch (error) {
-        console.error('Error creating employee:', error);
-        res.status(500).json({ message: 'Failed to create employee' });
-    }
-};
-
 
 module.exports = {
     getAllEmployees,
