@@ -49,8 +49,9 @@ const Sidebar = () => {
             label: 'Shift Management',
             icon: Clock,
             hasSubmenu: true,
+            path:"/shift-management",
             submenu: [
-                { label: 'Schedules', path: '/shift/schedules' },
+                { label: 'Schedules', path: '/shift-management' },
                 { label: 'Time Off', path: '/shift/time-off' },
                 { label: 'Rotation', path: '/shift/rotation' }
             ]

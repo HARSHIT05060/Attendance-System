@@ -16,6 +16,7 @@ import BulkAttendance from './pages/Payroll/BulkAttendance';
 import MonthlyPayroll from './pages/Payroll/MonthlyPayroll';
 import HourlyPayroll from './pages/Payroll/HourlyPayroll';
 import FinalizePayroll from './pages/Payroll/FinalizePayroll';
+import ShiftManagement from './pages/ShiftManagement/ShiftManagement';
 
 
 const App = () => {
@@ -46,6 +47,7 @@ const App = () => {
               <Route exact path="/leaveapplication" element={<LeaveApplication />} />
               <Route exact path="/holidaycalender" element={<HolidayCalendar />} />
               <Route exact path="/leavestatusPage" element={<LeaveStatusPage />} />
+              <Route exact path="/shift-management" element={<ShiftManagement />} />
               <Route exact path="/employee" element={<Employee />} />
               <Route path="/employee/add" element={<AddEmployee />} />
               <Route path="/employee/:id" element={<EmployeeDetail />} />
