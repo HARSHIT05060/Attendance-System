@@ -11,9 +11,9 @@ exports.generatePayroll = async (req, res) => {
         const payrolls = [];
 
         for (let emp of employees) {
-            const { employeeId, salary } = emp;
+            const { employeeCode, salary } = emp;
             const attendance = await Attendance.find({
-                employeeId,
+                employeeCode,
                 date: {
                     $gte: new Date(`${month}-01`),
                     $lte: new Date(`${month}-31`)
@@ -24,7 +24,7 @@ exports.generatePayroll = async (req, res) => {
             const basicPay = (parseFloat(salary) / 30) * presentDays;
 
             const payroll = new Payroll({
-                employeeId,
+                employeeCode,
                 month,
                 basicPay,
                 totalPay: basicPay,
@@ -66,13 +66,13 @@ const getSundays = (year, month) => {
 
 exports.getMonthlyPayroll = async (req, res) => {
     try {
-        const { employeeId, year, month } = req.query;
+        const { employeeCode, year, month } = req.query;
 
-        if (!employeeId || !year || !month) {
-            return res.status(400).json({ message: 'employeeId, year, and month are required' });
+        if (!employeeCode || !year || !month) {
+            return res.status(400).json({ message: 'employeeCode, year, and month are required' });
         }
 
-        const employee = await Employee.findOne({ employeeId });
+        const employee = await Employee.findOne({ employeeCode });
         if (!employee) return res.status(404).json({ message: 'Employee not found' });
 
         const salary = parseFloat(employee.salary);
@@ -87,7 +87,7 @@ exports.getMonthlyPayroll = async (req, res) => {
         const totalWorkingDays = lastDayOfMonth - sundays;
 
         const attendanceRecords = await Attendance.find({
-            employeeId,
+            employeeCode,
             date: {
                 $gte: startDate.toISOString().slice(0, 10),
                 $lte: new Date(yearNum, monthNum - 1, lastDayOfMonth).toISOString().slice(0, 10),
@@ -139,8 +139,8 @@ exports.getMonthlyPayroll = async (req, res) => {
         const payableSalary = ((salary / totalWorkingDays) * totalPaidDays).toFixed(2);
 
         res.json({
-            employeeId: employee.employeeId,
-            employeeName: employee.fullName,
+            employeeCode: employee.employeeCode,
+            employeeName: employee.name,
             month,
             year,
             totalWorkingDays,
@@ -180,7 +180,7 @@ exports.getAllMonthlyPayrolls = async (req, res) => {
 
             // Fetch attendance records with Date objects for date filter
             const attendanceRecords = await Attendance.find({
-                employeeId: employee.employeeId,
+                employeeCode: employee.employeeCode,
                 date: {
                     $gte: new Date(yearNum, monthNum - 1, 1),
                     $lte: new Date(yearNum, monthNum - 1, lastDayOfMonth),
@@ -235,8 +235,8 @@ exports.getAllMonthlyPayrolls = async (req, res) => {
             const payableSalary = ((salary / totalWorkingDays) * totalPaidDays).toFixed(2);
 
             results.push({
-                employeeId: employee.employeeId,
-                employeeName: employee.fullName,
+                employeeCode: employee.employeeCode,
+                employeeName: employee.name,
                 month,
                 year,
                 totalWorkingDays,

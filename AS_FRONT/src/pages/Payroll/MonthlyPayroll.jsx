@@ -381,10 +381,10 @@ const MonthlyPayroll = () => {
                             <td className="px-6 py-4 whitespace-nowrap">
                               <div>
                                 <div className="text-sm font-medium text-gray-900">
-                                  {record.employeeName || 'N/A'}
+                                  {record.employeeName || 'Naa/A'}
                                 </div>
                                 <div className="text-sm text-gray-500">
-                                  ID: {record.employeeId || 'N/A'}
+                                  ID: {record.employeeCode || 'N/A'}
                                 </div>
                               </div>
                             </td>
@@ -434,9 +434,9 @@ const MonthlyPayroll = () => {
                       <div className="flex justify-between items-start mb-3">
                         <div>
                           <h3 className="text-sm font-medium text-gray-900">
-                            {record.employeeName || 'N/A'}
+                            {record.employeeName || 'N/aaA'}
                           </h3>
-                          <p className="text-xs text-gray-500">ID: {record.employeeId || 'N/A'}</p>
+                          <p className="text-xs text-gray-500">ID: {record.employeeCode || 'N/A'}</p>
                         </div>
                         <div className="text-right">
                           <p className={`text-sm font-bold ${isZeroSalary ? 'text-red-600' : 'text-gray-900'}`}>

@@ -59,8 +59,8 @@ export default function EmployeeManagement() {
             sortableEmployees.sort((a, b) => {
                 // Define mapping between column keys and actual object properties
                 const keyMapping = {
-                    'id': 'employeeId',
-                    'name': 'fullName',
+                    'id': 'employeeCode',
+                    'name': 'name',
                     // Keep other mappings as they are
                     'department': 'department',
                     'designation': 'designation'
@@ -86,7 +86,7 @@ export default function EmployeeManagement() {
         const newMasterState = !masterCheckbox;
         setMasterCheckbox(newMasterState);
         if (newMasterState) {
-            setSelectedEmployees(employees.map(emp => emp.employeeId));
+            setSelectedEmployees(employees.map(emp => emp.employeeCode));
         } else {
             setSelectedEmployees([]);
         }
@@ -109,8 +109,8 @@ export default function EmployeeManagement() {
     const isSelected = (id) => selectedEmployees.indexOf(id) !== -1;
 
 
-    const handleViewDetails = (employeeId) => {
-        alert(`Viewing details for employee with ID: ${employeeId}`);
+    const handleViewDetails = (employeeCode) => {
+        alert(`Viewing details for employee with ID: ${employeeCode}`);
         // Navigation or modal logic would go here
     };
 
@@ -256,23 +256,23 @@ export default function EmployeeManagement() {
                                 ) : (
                                     getSortedEmployees().map((employee) => (
                                         <tr
-                                            key={employee.employeeId}
+                                            key={employee.employeeCode}
                                             className="hover:bg-gray-50"
                                         >
                                             <td className="px-4 py-3">
                                                 <input
                                                     type="checkbox"
                                                     className="h-4 w-4"
-                                                    checked={isSelected(employee.employeeId)}
-                                                    onChange={() => handleSelectEmployee(employee.employeeId)}
+                                                    checked={isSelected(employee.employeeCode)}
+                                                    onChange={() => handleSelectEmployee(employee.employeeCode)}
                                                 />
                                             </td>
-                                            <td className="px-4 py-3 text-sm text-gray-700">{employee.employeeId}</td>
-                                            <td className="px-4 py-3 text-sm text-gray-700">{employee.fullName}</td>
+                                            <td className="px-4 py-3 text-sm text-gray-700">{employee.employeeCode}</td>
+                                            <td className="px-4 py-3 text-sm text-gray-700">{employee.name}</td>
                                             <td className="px-4 py-3 text-sm text-gray-700">{employee.department}</td>
                                             <td className="px-4 py-3 text-sm text-gray-700">{employee.designation}</td>
                                             <td className="px-4 py-3 text-sm text-gray-700">
-                                                {new Date(employee.joiningDate).toLocaleDateString('en-GB')}
+                                                {new Date(employee.dateOfJoining).toLocaleDateString('en-GB')}
                                             </td>
                                             <td className="px-4 py-3 text-sm text-gray-700">
                                                 {employee.biometrics ?
@@ -286,7 +286,7 @@ export default function EmployeeManagement() {
                                             <td className="px-4 py-3 text-sm">
                                                 <div className="flex gap-2">
                                                     <button
-                                                        onClick={() => handleAssignBranch(employee.employeeId)}
+                                                        onClick={() => handleAssignBranch(employee.employeeCode)}
                                                         className="px-2 py-1 bg-white border border-gray-300 rounded text-xs text-gray-700 hover:bg-gray-50"
                                                     >
                                                         Assign Branch
@@ -301,14 +301,14 @@ export default function EmployeeManagement() {
                                                         <Pencil size={16} />
                                                     </button>
                                                     <button
-                                                        onClick={() => handleViewDetails(employee.employeeId)}
+                                                        onClick={() => handleViewDetails(employee.employeeCode)}
                                                         className="p-1 text-gray-600 hover:text-blue-600 border border-gray-200 rounded"
                                                     >
                                                         <FileText size={16} />
                                                     </button>
                                                     {employee.hasDocs && (
                                                         <button
-                                                            onClick={() => handleDuplicate(employee.employeeId)}
+                                                            onClick={() => handleDuplicate(employee.employeeCode)}
                                                             className="p-1 text-gray-600 hover:text-blue-600 border border-gray-200 rounded"
                                                         >
                                                             <ClipboardIcon size={16} />

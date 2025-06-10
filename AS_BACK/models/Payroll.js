@@ -1,7 +1,7 @@
 const mongoose = require('mongoose');
 
 const payrollSchema = new mongoose.Schema({
-    employeeId: { type: String, required: true },
+    employeeCode: { type: String, required: true },
     month: { type: String, required: true }, // Format: "2025-06"
     basicPay: { type: Number, required: true },
     bonuses: { type: Number, default: 0 },
