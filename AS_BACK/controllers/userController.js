@@ -3,10 +3,10 @@ const User = require('../models/User');
 // Create a new user
 exports.createUser = async (req, res) => {
     try {
-        const { employeeId, username, password, role, permissions, status, lastLogin, twoFactorEnabled } = req.body;
+        const { employeeCode, username, password, role, permissions, status, lastLogin, twoFactorEnabled } = req.body;
 
         const newUser = new User({
-            employeeId,
+            employeeCode,
             username,
             password,  // Ensure this is hashed before saving in a real-world scenario
             role,

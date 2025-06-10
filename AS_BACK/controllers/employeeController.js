@@ -4,8 +4,16 @@ require('dotenv').config();
 // Create a new employee
 const createEmployee = async (req, res) => {
     try {
+        // ✅ Parse 'references' if sent as string from FormData
+        if (typeof req.body.references === 'string') {
+            try {
+                req.body.references = JSON.parse(req.body.references);
+            } catch (err) {
+                return res.status(400).json({ message: 'Invalid references format' });
+            }
+        }
+
         const {
-            // Basic Details
             employeeCode,
             name,
             mobile,
@@ -19,52 +27,46 @@ const createEmployee = async (req, res) => {
             salary,
             address,
 
-            // Bank Details
             bankName,
             branchName,
             accountNo,
             ifscCode,
 
-            // Legal Documents
-            aadharCard,
-            drivingLicence,
-            panCard,
-            photo,
-
-            // Contact Information
             emergencyContactNo,
             contactPersonName,
             relation,
             emergencyAddress,
 
-            // Personal Information
             dateOfBirth,
             dateOfJoining,
 
-            // References
             references
         } = req.body;
 
-        // Validation for required fields
+        // Validation
         if (!employeeCode || !name || !mobile || !gender || !branch || !department || !designation) {
             return res.status(400).json({
                 message: 'Employee Code, Name, Mobile, Gender, Branch, Department, and Designation are required.'
             });
         }
 
-        // Check if employee code already exists
+        // Check if employee code exists
         const existingEmployee = await Employee.findOne({ employeeCode });
         if (existingEmployee) {
             return res.status(400).json({ message: 'Employee code already exists.' });
         }
 
-        // Create new employee
+        // File uploads via multer
+        const photo = req.files?.photo?.[0]?.path || null;
+        const aadharCard = req.files?.aadharCard?.[0]?.path || null;
+        const panCard = req.files?.panCard?.[0]?.path || null;
+        const drivingLicence = req.files?.drivingLicence?.[0]?.path || null;
+
         const newEmployee = new Employee({
-            // Basic Details
             employeeCode,
             name,
             mobile,
-            email, // personal email
+            email,
             gender,
             branch,
             department,
@@ -74,32 +76,25 @@ const createEmployee = async (req, res) => {
             salary,
             address,
 
-            // Bank Details
             bankName,
             branchName,
             accountNo,
             ifscCode,
 
-            // Legal Documents
             aadharCard,
             drivingLicence,
             panCard,
             photo,
 
-            // Contact Information
             emergencyContactNo,
             contactPersonName,
             relation,
             emergencyAddress,
 
-            // Personal Information
             dateOfBirth: dateOfBirth ? new Date(dateOfBirth) : null,
             dateOfJoining: dateOfJoining ? new Date(dateOfJoining) : null,
 
-            // References
             references: references || [],
-
-            // System fields
             status: 'active'
         });
 
@@ -114,7 +109,6 @@ const createEmployee = async (req, res) => {
         console.error('Error creating employee:', error);
 
         if (error.code === 11000) {
-            // Duplicate key error
             const field = Object.keys(error.keyPattern)[0];
             return res.status(400).json({
                 message: `${field} already exists. Please use a different value.`
@@ -124,6 +118,7 @@ const createEmployee = async (req, res) => {
         res.status(500).json({ message: 'Failed to create employee' });
     }
 };
+
 
 // Get all employees
 const getAllEmployees = async (req, res) => {
@@ -141,11 +136,9 @@ const getAllEmployees = async (req, res) => {
 const getEmployeeById = async (req, res) => {
     try {
         const employee = await Employee.findById(req.params.id);
-
         if (!employee) {
             return res.status(404).json({ message: "Employee not found" });
         }
-
         res.json(employee);
     } catch (error) {
         console.error(error);

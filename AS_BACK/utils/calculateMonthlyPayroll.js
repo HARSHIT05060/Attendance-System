@@ -14,9 +14,9 @@ const attendanceSalaryMultiplier = {
     "business-trip": 1
 };
 
-async function calculateMonthlyPayroll(employeeId, year, month) {
+async function calculateMonthlyPayroll(employeeCode, year, month) {
     // Find employee
-    const employee = await Employee.findOne({ employeeId });
+    const employee = await Employee.findOne({ employeeCode });
     if (!employee) throw new Error('Employee not found');
 
     // Fetch attendance records for the month and year
@@ -25,7 +25,7 @@ async function calculateMonthlyPayroll(employeeId, year, month) {
     const dateRegex = new RegExp(`-` + monthStr + `-` + year + `$`);
 
     const attendanceRecords = await Attendance.find({
-        employeeId,
+        employeeCode,
         date: { $regex: dateRegex }
     });
 
@@ -43,7 +43,7 @@ async function calculateMonthlyPayroll(employeeId, year, month) {
     const payableSalary = (monthlySalary / totalWorkingDays) * totalPaidDays;
 
     return {
-        employeeId,
+        employeeCode,
         employeeName: employee.fullName,
         month,
         year,

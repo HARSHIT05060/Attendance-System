@@ -17,6 +17,7 @@
     "express": "^5.1.0",
     "generate-password": "^1.7.1",
     "mongoose": "^8.14.2",
+    "multer": "^2.0.1",
     "nodemailer": "^7.0.3"
   },
   "devDependencies": {

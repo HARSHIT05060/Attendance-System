@@ -19,7 +19,7 @@ const bulkAttendance = async (req, res) => {
         // Format date and prepare bulk update ops for upsert to avoid duplicates
         const bulkOps = attendanceRecords.map(record => ({
             updateOne: {
-                filter: { employeeId: record.employeeId, date: formatDate(record.date) },
+                filter: { employeeCode: record.employeeCode, date: formatDate(record.date) },
                 update: { $set: { status: record.status } },
                 upsert: true,
             }
@@ -36,7 +36,7 @@ const bulkAttendance = async (req, res) => {
 
 const getAttendanceByWeek = async (req, res) => {
     try {
-        const { employeeId } = req.params;
+        const { employeeCode } = req.params;
         const { startDate, endDate } = req.query;
 
         if (!startDate || !endDate) {
@@ -48,7 +48,7 @@ const getAttendanceByWeek = async (req, res) => {
         const end = formatDate(endDate);
 
         const attendanceRecords = await Attendance.find({
-            employeeId,
+            employeeCode,
             date: { $gte: start, $lte: end },
         });
 
@@ -61,14 +61,14 @@ const getAttendanceByWeek = async (req, res) => {
 
 const updateAttendance = async (req, res) => {
     try {
-        const { employeeId, date, status } = req.body;
+        const { employeeCode, date, status } = req.body;
 
         // Convert date string to Date object for MongoDB
         const dateObj = new Date(date + 'T00:00:00.000Z'); // Ensure UTC
 
         await Attendance.findOneAndUpdate(
-            { employeeId, date: dateObj },
-            { employeeId, date: dateObj, status },
+            { employeeCode, date: dateObj },
+            { employeeCode, date: dateObj, status },
             { upsert: true, new: true }
         );
 

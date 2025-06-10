@@ -12,7 +12,7 @@ const getLeaveRequests = async (req, res) => {
         }
 
         const leaves = await LeaveRequest.find(query)
-            .populate('employee_id', 'fullName employeeId') // Populate employee data if referenced
+            .populate('employee_id', 'fullName employeeCode') // Populate employee data if referenced
             .exec();
 
         res.status(200).json(leaves);
