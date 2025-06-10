@@ -10,6 +10,24 @@ const daysOfWeek = [
     { short: "Fr", full: "Friday" },
     { short: "Sa", full: "Saturday" },
 ];
+const shortToDayNumber = {
+    'Su': 0,
+    'Mo': 1,
+    'Tu': 2,
+    'We': 3,
+    'Th': 4,
+    'Fr': 5,
+    'Sa': 6,
+};
+const formatDate = (dateStr) => {
+    const date = new Date(dateStr);
+    const day = String(date.getDate()).padStart(2, '0');
+    const month = String(date.getMonth() + 1).padStart(2, '0'); // Months are 0-indexed
+    const year = date.getFullYear();
+    return `${day}-${month}-${year}`;
+};
+
+
 
 const ShiftManagement = () => {
     const [shifts, setShifts] = useState([]);
@@ -24,8 +42,7 @@ const ShiftManagement = () => {
         name: "",
         startTime: "",
         endTime: "",
-        daysApplicable: [],
-        type: "working"
+        daysApplicable: ['Mo', 'We', 'Fr']
     });
 
     const [assignDetails, setAssignDetails] = useState({
@@ -211,7 +228,6 @@ const ShiftManagement = () => {
                 startTime: newShift.startTime,
                 endTime: newShift.endTime,
                 daysApplicable: newShift.daysApplicable,
-                type: newShift.type,
                 createdAt: new Date().toISOString(),
                 assignedCount: 0
             };
@@ -249,7 +265,6 @@ const ShiftManagement = () => {
                     startTime: "",
                     endTime: "",
                     daysApplicable: [],
-                    type: "working"
                 });
 
                 // Close sidebar after success
@@ -316,8 +331,9 @@ const ShiftManagement = () => {
                 date: assignDetails.date,
                 createdAt: new Date().toISOString()
             };
+            console.log("Sending assignmentData:", assignmentData);
 
-            const response = await fetch(`${API_BASE_URL}/api/employees/shift-assignments`, {
+            const response = await fetch(`${API_BASE_URL}/api/shifts/assign-shift`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
@@ -365,7 +381,7 @@ const ShiftManagement = () => {
         }
     };
 
-    const getDayColor = (day, isActive) => {
+    const getDayColor = (isActive) => {
         if (!isActive) return 'bg-gray-200 text-gray-500';
         return 'bg-blue-500 text-white';
     };
@@ -421,7 +437,6 @@ const ShiftManagement = () => {
             startTime: "",
             endTime: "",
             daysApplicable: [],
-            type: "working"
         });
         setAssignDetails({ employeeCode: "", shiftId: "", date: "" });
         clearMessages();
@@ -544,11 +559,11 @@ const ShiftManagement = () => {
                                     <td className="p-4">
                                         <div className="flex gap-1">
                                             {daysOfWeek.map((day) => {
-                                                const isActive = shift.daysApplicable?.includes(day.short);
+                                                const isActive = shift.daysApplicable?.includes(shortToDayNumber[day.short]);
                                                 return (
                                                     <div
                                                         key={day.short}
-                                                        className={`w-8 h-8 rounded-full flex items-center justify-center text-sm font-medium ${getDayColor(day.short, isActive)}`}
+                                                        className={`w-8 h-8 rounded-full flex items-center justify-center text-sm font-medium ${getDayColor(isActive)}`}
                                                         title={day.full}
                                                     >
                                                         {day.short}
@@ -562,7 +577,7 @@ const ShiftManagement = () => {
                                     </td>
                                     <td className="p-4">
                                         <span className="text-gray-500">
-                                            {shift.createdAt ? new Date(shift.createdAt).toLocaleDateString() : '-'}
+                                            {shift.createdAt ? formatDate(shift.createdAt) : '-'}
                                         </span>
                                     </td>
                                     <td className="p-4">
@@ -686,22 +701,6 @@ const ShiftManagement = () => {
                                             disabled={isLoading}
                                         />
                                     </div>
-                                </div>
-
-                                <div>
-                                    <label className="block text-sm font-medium text-gray-700 mb-2">
-                                        Shift Type
-                                    </label>
-                                    <select
-                                        className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 disabled:bg-gray-100"
-                                        value={newShift.type}
-                                        onChange={(e) => setNewShift({ ...newShift, type: e.target.value })}
-                                        disabled={isLoading}
-                                    >
-                                        <option value="working">Working Day</option>
-                                        <option value="weekoff">Week Off</option>
-                                        <option value="occasional">Occasional Working</option>
-                                    </select>
                                 </div>
 
                                 <div>
