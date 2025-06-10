@@ -1,4 +1,5 @@
-import { useState, useEffect, useRef } from 'react';
+import { useState } from 'react';
+import { Link, useNavigate } from 'react-router-dom';
 import {
     Home,
     Users,
@@ -12,21 +13,12 @@ import {
     User,
     Settings,
     Phone,
-    ChevronRight,
-    Menu,
-    ChevronLeft
+    ChevronRight
 } from 'lucide-react';
-import { Link, useNavigate } from 'react-router-dom';
-
 
 const Sidebar = () => {
-    const [collapsed, setCollapsed] = useState(true);
     const [activeItem, setActiveItem] = useState('dashboard');
-    const [hoveredItem, setHoveredItem] = useState(null);
     const [expandedSubmenu, setExpandedSubmenu] = useState(null);
-    const [isHovering, setIsHovering] = useState(false);
-    const hoverTimerRef = useRef(null);
-    const sidebarRef = useRef(null);
     const navigate = useNavigate();
 
     const menuItems = [
@@ -49,7 +41,7 @@ const Sidebar = () => {
             label: 'Shift Management',
             icon: Clock,
             hasSubmenu: true,
-            path:"/shift-management",
+            path: "/shift-management",
             submenu: [
                 { label: 'Schedules', path: '/shift-management' },
                 { label: 'Time Off', path: '/shift/time-off' },
@@ -130,194 +122,194 @@ const Sidebar = () => {
         }
     ];
 
-
-    const handleMouseEnter = () => {
-        if (collapsed) {
-            // Clear any existing timer to prevent multiple state changes
-            if (hoverTimerRef.current) {
-                clearTimeout(hoverTimerRef.current);
-            }
-
-            // Set a small delay before expanding to avoid unwanted triggers
-            hoverTimerRef.current = setTimeout(() => {
-                setIsHovering(true);
-            }, 200);
-        }
-    };
-
-    const handleMouseLeave = () => {
-        // Clear any existing timer
-        if (hoverTimerRef.current) {
-            clearTimeout(hoverTimerRef.current);
-        }
-
-        // Set a small delay before collapsing again to improve UX
-        hoverTimerRef.current = setTimeout(() => {
-            setIsHovering(false);
-        }, 300);
-    };
-
-    // Effect to handle auto-expand/collapse on hover
-    useEffect(() => {
-        // Only change the actual collapsed state when hovering changes
-        // and we're not manually toggling
-        if (isHovering && collapsed) {
-            setCollapsed(false);
-        } else if (!isHovering && !collapsed && hoverTimerRef.current) {
-            // Only auto-collapse if it was previously expanded by hovering
-            setCollapsed(true);
-        }
-    }, [collapsed, isHovering]);
-
-    // Clean up any timers when component unmounts
-    useEffect(() => {
-        return () => {
-            if (hoverTimerRef.current) {
-                clearTimeout(hoverTimerRef.current);
-            }
-        };
-    }, []);
-
     const handleMenuClick = (item) => {
         setActiveItem(item.id);
 
         if (item.hasSubmenu) {
             setExpandedSubmenu(expandedSubmenu === item.id ? null : item.id);
-            navigate(item.path); // Navigate programmatically
+            // Navigate to main path if it exists
+            if (item.path) {
+                navigate(item.path);
+            }
         } else if (item.path) {
+            // Navigate to path for items without submenu
             setExpandedSubmenu(null);
-            navigate(item.path); // Navigate programmatically
+            navigate(item.path);
         } else {
             setExpandedSubmenu(null);
         }
     };
 
+    const getSubmenuHeight = (itemId) => {
+        const submenu = menuItems.find(item => item.id === itemId)?.submenu;
+        if (!submenu) return 0;
+        return submenu.length * 36 + 16; // 36px per item + padding
+    };
+
     return (
-        <div
-            ref={sidebarRef}
-            className={`h-screen bg-white border-r border-gray-200 shadow-sm transition-all duration-300 relative ${collapsed ? 'w-16' : 'w-64'}`}
-            onMouseEnter={handleMouseEnter}
-            onMouseLeave={handleMouseLeave}
-        >
+        <>
+            <style>
+                {`
+                    .custom-scrollbar::-webkit-scrollbar {
+                        width: 6px;
+                    }
+                    
+                    .custom-scrollbar::-webkit-scrollbar-track {
+                        background: #f1f5f9;
+                        border-radius: 10px;
+                        margin: 8px 0;
+                    }
+                    
+                    .custom-scrollbar::-webkit-scrollbar-thumb {
+                        background: linear-gradient(45deg, #3b82f6, #6366f1);
+                        border-radius: 10px;
+                        transition: all 0.3s ease;
+                    }
+                    
+                    .custom-scrollbar::-webkit-scrollbar-thumb:hover {
+                        background: linear-gradient(45deg, #2563eb, #4f46e5);
+                        width: 8px;
+                    }
 
-            {/* Navigation items */}
-            <div className="h-full flex flex-col">
-                <div className="flex-1 overflow-y-auto py-2">
-                    {menuItems.map((item) => {
-                        const Icon = item.icon;
-                        const isActive = activeItem === item.id;
-                        const isExpanded = expandedSubmenu === item.id;
+                    /* Firefox */
+                    .custom-scrollbar {
+                        scrollbar-width: thin;
+                        scrollbar-color: #3b82f6 #f1f5f9;
+                    }
+                    
+                    .scrollbar-fade-top {
+                        background: linear-gradient(180deg, rgba(248, 250, 252, 0.9) 0%, transparent 100%);
+                        pointer-events: none;
+                    }
+                    
+                    .scrollbar-fade-bottom {
+                        background: linear-gradient(0deg, rgba(248, 250, 252, 0.9) 0%, transparent 100%);
+                        pointer-events: none;
+                    }
+                `}
+            </style>
 
-                        return (
-                            <div key={item.id}>
-                                <div
-                                    className={`
-                    relative cursor-pointer my-1 mx-2 rounded-md
-                    ${isActive ? 'bg-blue-500 text-white' : 'text-gray-700 hover:bg-gray-100'}
-                  `}
-                                    onClick={() => handleMenuClick(item)}
-                                    onMouseEnter={() => collapsed && setHoveredItem(item.id)}
-                                    onMouseLeave={() => collapsed && setHoveredItem(null)}
-                                >
-                                    <div className="py-2 px-3 flex items-center justify-between">
-                                        <div className="flex items-center">
-                                            <Icon size={18} className={isActive ? 'text-white' : 'text-gray-600'} />
-                                            {!collapsed && <span className="ml-3 text-sm font-medium">{item.label}</span>}
-                                        </div>
-                                        {!collapsed && (
-                                            <div className="flex items-center">
+            <div className="fixed left-0 top-16 h-[calc(100vh-4rem)] bg-gradient-to-b from-slate-50 to-white border-r border-gray-200 shadow-lg transition-all duration-300 w-64 z-40">
+                {/* Scrollable Navigation Container */}
+                <div className="h-[calc(100%-140px)] relative">
+                    {/* Top fade overlay */}
+                    <div className="absolute top-0 left-0 right-0 h-4 z-10 scrollbar-fade-top"></div>
+
+                    {/* Scrollable content */}
+                    <div className="h-full overflow-y-auto custom-scrollbar py-4 px-3 pb-6">
+                        {menuItems.map((item) => {
+                            const Icon = item.icon;
+                            const isActive = activeItem === item.id;
+                            const isExpanded = expandedSubmenu === item.id;
+
+                            return (
+                                <div key={item.id} className="mb-1">
+                                    <div
+                                        className={`
+                                            relative cursor-pointer rounded-xl transition-all duration-300 group
+                                            ${isActive
+                                                ? 'bg-gradient-to-r from-blue-500 to-blue-600 text-white shadow-lg transform scale-[1.02]'
+                                                : 'text-gray-700 hover:bg-gray-100 hover:shadow-md hover:transform hover:scale-[1.01]'
+                                            }
+                                        `}
+                                        onClick={() => handleMenuClick(item)}
+                                    >
+                                        <div className="py-3 px-4 flex items-center justify-between">
+                                            <div className="flex items-center space-x-3">
+                                                <div className={`
+                                                    p-2 rounded-lg transition-all duration-300
+                                                    ${isActive
+                                                        ? 'bg-white/20 text-white'
+                                                        : 'bg-gray-100 text-gray-600 group-hover:bg-blue-100 group-hover:text-blue-600'
+                                                    }
+                                                `}>
+                                                    <Icon size={16} />
+                                                </div>
+                                                <span className="text-sm font-medium">{item.label}</span>
+                                            </div>
+                                            <div className="flex items-center space-x-2">
                                                 {item.tag && (
-                                                    <span className="text-xs bg-blue-100 text-blue-600 rounded px-2 py-0.5 mr-2">
+                                                    <span className={`
+                                                        text-xs px-2 py-1 rounded-full font-medium transition-all duration-300
+                                                        ${isActive
+                                                            ? 'bg-white/20 text-white'
+                                                            : 'bg-gradient-to-r from-emerald-100 to-emerald-200 text-emerald-700'
+                                                        }
+                                                    `}>
                                                         {item.tag}
                                                     </span>
                                                 )}
                                                 {item.hasSubmenu && (
                                                     <ChevronRight
                                                         size={16}
-                                                        className={`transform transition-transform ${isExpanded ? 'rotate-90' : ''}`}
+                                                        className={`
+                                                            transform transition-all duration-300 ease-in-out
+                                                            ${isExpanded ? 'rotate-90' : 'rotate-0'}
+                                                            ${isActive ? 'text-white' : 'text-gray-400'}
+                                                        `}
                                                     />
                                                 )}
                                             </div>
-                                        )}
+                                        </div>
                                     </div>
 
-                                    {/* Tooltip for collapsed state */}
-                                    {collapsed && hoveredItem === item.id && (
-                                        <div className="absolute left-full ml-2 z-10 bg-white shadow-lg rounded-md py-2 px-3 whitespace-nowrap">
-                                            <div className="flex items-center justify-between">
-                                                <span className="text-gray-800 font-medium">{item.label}</span>
-                                                {item.tag && (
-                                                    <span className="ml-2 px-2 py-0.5 text-xs bg-blue-100 text-blue-600 rounded">
-                                                        {item.tag}
-                                                    </span>
-                                                )}
+                                    {/* Animated Submenu */}
+                                    {item.hasSubmenu && (
+                                        <div
+                                            className="overflow-hidden transition-all duration-500 ease-in-out"
+                                            style={{
+                                                maxHeight: isExpanded ? `${getSubmenuHeight(item.id)}px` : '0px',
+                                                opacity: isExpanded ? 1 : 0,
+                                            }}
+                                        >
+                                            <div className="ml-6 mt-2 space-y-1">
+                                                {item.submenu.map((subItem, index) => (
+                                                    <Link
+                                                        key={index}
+                                                        to={subItem.path}
+                                                        className="
+                                                            flex items-center py-2 px-4 text-sm text-gray-600 
+                                                            rounded-lg transition-all duration-300 hover:bg-blue-50 
+                                                            hover:text-blue-600 hover:pl-6 hover:shadow-sm
+                                                            border-l-2 border-transparent hover:border-blue-300
+                                                        "
+                                                        style={{
+                                                            animationDelay: `${index * 50}ms`
+                                                        }}
+                                                    >
+                                                        <div className="w-2 h-2 bg-gray-300 rounded-full mr-3 transition-colors duration-300 hover:bg-blue-400"></div>
+                                                        {subItem.label}
+                                                    </Link>
+                                                ))}
                                             </div>
-
-                                            {/* Show submenu items in tooltip when collapsed */}
-                                            {item.hasSubmenu && (
-                                                <div className="mt-2 pl-2 border-l border-gray-200">
-                                                    {item.submenu.map((subItem, index) => (
-                                                        <Link
-                                                            key={index}
-                                                            to={subItem.path}
-                                                            className="py-1.5 text-sm text-gray-600 hover:text-blue-500 cursor-pointer block"
-                                                        >
-                                                            {subItem.label}
-                                                        </Link>
-                                                    ))}
-                                                </div>
-                                            )}
                                         </div>
                                     )}
                                 </div>
+                            );
+                        })}
 
-                                {/* Submenu items (visible when not collapsed and submenu is expanded) */}
-                                {!collapsed && isExpanded && item.hasSubmenu && (
-                                    <div className="ml-9 mt-1 mb-2 pl-2 border-l border-gray-200">
-                                        {item.submenu.map((subItem, index) => (
-                                            <Link
-                                                key={index}
-                                                to={subItem.path}
-                                                className="py-1.5 text-sm text-gray-600 hover:text-blue-500 cursor-pointer block"
-                                            >
-                                                {subItem.label}
-                                            </Link>
-                                        ))}
-                                    </div>
-                                )}
-                            </div>
-                        );
-                    })}
+                        {/* Extra padding at bottom for better scrolling */}
+                        <div className="h-4"></div>
+                    </div>
+
+                    {/* Bottom fade overlay */}
+                    <div className="absolute bottom-0 left-0 right-0 h-4 z-10 scrollbar-fade-bottom"></div>
                 </div>
 
-                {/* Footer with contact info */}
-                <div className="border-t border-gray-200 py-3 px-4 mt-auto">
-                    <div
-                        className="flex items-center text-gray-600 text-sm"
-                        onMouseEnter={() => collapsed && setHoveredItem('contact')}
-                        onMouseLeave={() => collapsed && setHoveredItem(null)}
-                    >
-                        {!collapsed ? (
-                            <>
-                                <Phone size={14} className="flex-shrink-0 text-blue-500" />
-                                <span className="ml-2">Help: <span className="font-medium text-blue-500">+91 9769922344</span></span>
-                            </>
-                        ) : (
-                            <div className="w-full flex justify-center">
-                                <Phone size={16} className="text-blue-500" />
-
-                                {/* Tooltip for contact info */}
-                                {hoveredItem === 'contact' && (
-                                    <div className="absolute left-full bottom-4 ml-2 z-10 bg-white shadow-lg rounded py-2 px-3 whitespace-nowrap">
-                                        <span>Help: <span className="font-medium text-blue-500">+91 9769922344</span></span>
-                                    </div>
-                                )}
-                            </div>
-                        )}
+                {/* Enhanced Footer */}
+                <div className="absolute bottom-0 left-0 right-0 border-t border-gray-100 p-4 bg-gradient-to-r from-gray-50 to-blue-50">
+                    <div className="flex items-center space-x-3 p-3 bg-white rounded-xl shadow-sm hover:shadow-md transition-shadow duration-300">
+                        <div className="p-2 bg-blue-100 rounded-lg">
+                            <Phone size={16} className="text-blue-600" />
+                        </div>
+                        <div>
+                            <p className="text-xs text-gray-500 font-medium">Need Help?</p>
+                            <p className="text-sm font-semibold text-blue-600">+91 9769922344</p>
+                        </div>
                     </div>
                 </div>
             </div>
-        </div>
+        </>
     );
 };
 

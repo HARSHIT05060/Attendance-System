@@ -1,7 +1,7 @@
 import { Bell, ChevronDown,User } from 'lucide-react';
 const Navbar = () => {
     return (
-        <div className="flex items-center justify-end w-full h-16 px-4 bg-white border-b border-gray-200">
+        <div className="fixed flex items-center justify-end w-full h-16 px-4 bg-white border-b border-gray-200">
             {/* <div className="flex items-center">
                 <div className="flex items-center mr-4">
                     <img src="/api/placeholder/32/32" alt="Logo" className="w-8 h-8" />

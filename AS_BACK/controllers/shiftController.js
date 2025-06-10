@@ -63,9 +63,7 @@ exports.assignShiftToEmployee = async (req, res) => {
         // const employee = await Employee.findOne({ employeeCode: employeeId });
         const employee = await Employee.findById(employeeId.trim());
 
-        console.log("Received employeeId:", req.body.employeeId);
         if (!employee) {
-            console.log("❌ Employee not found for ID:", req.body.employeeId);
             return res.status(404).json({ message: "Employee not found" });
         }
 

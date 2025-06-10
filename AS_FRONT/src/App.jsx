@@ -37,9 +37,9 @@ const App = () => {
         <Navbar /> {/* Top Navbar */}
 
         {/* Main layout: Sidebar and content side-by-side */}
-        <div className="flex flex-1">
+        <div className="flex flex-1 ml-64 pt-16">
           <Sidebar /> {/* Left Sidebar */}
-          <main className="flex-1 p-4 overflow-y-auto">
+          <main className="flex-1 overflow-y-auto">
             <Routes>
               <Route exact path="/" element={<Home />} />
               <Route exact path="/usermanage" element={<UserManagement />} />
