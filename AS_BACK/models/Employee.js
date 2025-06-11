@@ -45,7 +45,10 @@ const employeeSchema = new mongoose.Schema({
 
 
     status: { type: String, default: 'active' },
-    shift: { type: String, required: false },
+    shift: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "shift"
+    },
     biometricFaceRecognition: { type: String, default: null },
     biometricFingerprint: { type: String, default: null }
 }, {
