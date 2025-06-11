@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link, useLocation, useNavigate } from 'react-router-dom';
 import {
     Home,
     Users,
@@ -17,9 +17,11 @@ import {
 } from 'lucide-react';
 
 const Sidebar = () => {
-    const [activeItem, setActiveItem] = useState('dashboard');
+    const location = useLocation();
+    const currentPath = location.pathname;
     const [expandedSubmenu, setExpandedSubmenu] = useState(null);
     const navigate = useNavigate();
+
 
     const menuItems = [
         { id: 'dashboard', label: 'Dashboard', icon: Home, hasSubmenu: false, path: '/' },
@@ -121,9 +123,21 @@ const Sidebar = () => {
             ]
         }
     ];
+    const getActiveItemId = () => {
+        for (const item of menuItems) {
+            if (item.path && currentPath === item.path) return item.id;
+            if (item.submenu) {
+                for (const sub of item.submenu) {
+                    if (currentPath === sub.path) return item.id;
+                }
+            }
+        }
+        return 'dashboard'; // default fallback
+    };
+
+    const activeItem = getActiveItemId();
 
     const handleMenuClick = (item) => {
-        setActiveItem(item.id);
 
         if (item.hasSubmenu) {
             setExpandedSubmenu(expandedSubmenu === item.id ? null : item.id);
