@@ -24,7 +24,7 @@ const Sidebar = () => {
 
 
     const menuItems = [
-        { id: 'dashboard', label: 'Dashboard', icon: Home, hasSubmenu: false, path: '/' },
+        { id: 'dashboard', label: 'Dashboard', icon: Home, hasSubmenu: false, path: '/home' },
 
         {
             id: 'employees',
