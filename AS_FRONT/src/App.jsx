@@ -3,7 +3,6 @@ import { Route, Routes, useLocation } from 'react-router-dom';
 import Navbar from './Components/Navbar';
 import Sidebar from './Components/Sidebar';
 import Login from "./Components/Login";
-import Signup from "./Components/Signup";
 import Home from './Components/Home';
 import api from "./api";
 import Employee from './pages/Employee/Employee';
@@ -22,7 +21,8 @@ import ShiftManagement from './pages/ShiftManagement/ShiftManagement';
 
 const App = () => {
   const location = useLocation();
-  const isAuthPage = location.pathname === "/" || location.pathname === "/signup";
+  const isLoginPage = location.pathname === "/";
+
 
   useEffect(() => {
     api.get("/api/data")
@@ -36,13 +36,12 @@ const App = () => {
 
   return (
     <div className="flex flex-col h-30">
-      {!isAuthPage && <Navbar />}
-      <div className={`flex flex-1 ${!isAuthPage ? "ml-64 pt-16" : ""}`}>
-        {!isAuthPage && <Sidebar />}
+      {!isLoginPage && <Navbar />}
+      <div className={`flex flex-1 ${!isLoginPage ? "ml-64 pt-16" : ""}`}>
+        {!isLoginPage && <Sidebar />}
         <main className="flex-1 overflow-y-auto">
           <Routes>
             <Route path="/" element={<Login />} />
-            <Route path="/signup" element={<Signup />} />
             <Route path="/home" element={<Home />} />
             <Route path="/usermanage" element={<UserManagement />} />
             <Route path="/add-user" element={<AddUser />} />
