@@ -1,7 +1,9 @@
 import React, { useEffect } from 'react';
-import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
+import { Route, Routes, useLocation } from 'react-router-dom';
 import Navbar from './Components/Navbar';
 import Sidebar from './Components/Sidebar';
+import Login from "./Components/Login";
+import Signup from "./Components/Signup";
 import Home from './Components/Home';
 import api from "./api";
 import Employee from './pages/Employee/Employee';
@@ -18,8 +20,10 @@ import HourlyPayroll from './pages/Payroll/HourlyPayroll';
 import FinalizePayroll from './pages/Payroll/FinalizePayroll';
 import ShiftManagement from './pages/ShiftManagement/ShiftManagement';
 
-
 const App = () => {
+  const location = useLocation();
+  const isAuthPage = location.pathname === "/" || location.pathname === "/signup";
+
   useEffect(() => {
     api.get("/api/data")
       .then((res) => {
@@ -31,35 +35,32 @@ const App = () => {
   }, []);
 
   return (
-    <Router>
-      {/* Page wrapper with vertical layout */}
-      <div className="flex flex-col h-30">
-        <Navbar /> {/* Top Navbar */}
-
-        {/* Main layout: Sidebar and content side-by-side */}
-        <div className="flex flex-1 ml-64 pt-16">
-          <Sidebar /> {/* Left Sidebar */}
-          <main className="flex-1 overflow-y-auto">
-            <Routes>
-              <Route exact path="/" element={<Home />} />
-              <Route exact path="/usermanage" element={<UserManagement />} />
-              <Route path="/add-user" element={<AddUser />} />
-              <Route exact path="/leaveapplication" element={<LeaveApplication />} />
-              <Route exact path="/holidaycalender" element={<HolidayCalendar />} />
-              <Route exact path="/leavestatusPage" element={<LeaveStatusPage />} />
-              <Route exact path="/shift-management" element={<ShiftManagement />} />
-              <Route exact path="/employee" element={<Employee />} />
-              <Route path="/employee/add" element={<AddEmployee />} />
-              <Route path="/employee/:id" element={<EmployeeDetail />} />
-              <Route path="/bulk-attendance" element={<BulkAttendance />} />
-              <Route path="/monthly-payroll" element={<MonthlyPayroll />} />
-              <Route path="/hourly-payroll" element={<HourlyPayroll />} />
-              <Route path="/finalize-payroll" element={<FinalizePayroll />} />
-            </Routes>
-          </main>
-        </div>
+    <div className="flex flex-col h-30">
+      {!isAuthPage && <Navbar />}
+      <div className={`flex flex-1 ${!isAuthPage ? "ml-64 pt-16" : ""}`}>
+        {!isAuthPage && <Sidebar />}
+        <main className="flex-1 overflow-y-auto">
+          <Routes>
+            <Route path="/" element={<Login />} />
+            <Route path="/signup" element={<Signup />} />
+            <Route path="/home" element={<Home />} />
+            <Route path="/usermanage" element={<UserManagement />} />
+            <Route path="/add-user" element={<AddUser />} />
+            <Route path="/leaveapplication" element={<LeaveApplication />} />
+            <Route path="/holidaycalender" element={<HolidayCalendar />} />
+            <Route path="/leavestatusPage" element={<LeaveStatusPage />} />
+            <Route path="/shift-management" element={<ShiftManagement />} />
+            <Route path="/employee" element={<Employee />} />
+            <Route path="/employee/add" element={<AddEmployee />} />
+            <Route path="/employee/:id" element={<EmployeeDetail />} />
+            <Route path="/bulk-attendance" element={<BulkAttendance />} />
+            <Route path="/monthly-payroll" element={<MonthlyPayroll />} />
+            <Route path="/hourly-payroll" element={<HourlyPayroll />} />
+            <Route path="/finalize-payroll" element={<FinalizePayroll />} />
+          </Routes>
+        </main>
       </div>
-    </Router>
+    </div>
   );
 };
 
