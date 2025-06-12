@@ -1,10 +1,11 @@
 import { useState } from "react";
 import { Mail, Lock, Eye, EyeOff, Facebook, Twitter, Github } from "lucide-react";
 import { useNavigate } from "react-router-dom";
+import axios from "axios";
 
 
 const Login = () => {
-    const [email, setEmail] = useState("");
+    const [number, setNumber] = useState("");
     const [password, setPassword] = useState("");
     const [showPassword, setShowPassword] = useState(false);
     const [isLoading, setIsLoading] = useState(false);
@@ -14,16 +15,33 @@ const Login = () => {
         e.preventDefault();
         setIsLoading(true);
 
-        // Simulate API call
-        setTimeout(() => {
-            if (email === "admin@example.com" && password === "admin123") {
+        try {
+            const formData = new FormData();
+            formData.append("number", number);  // ✅ changed here
+            formData.append("password", password);
+
+            const response = await axios.post("https://attendance.2-min.in/api/v1/login", formData, {
+                headers: {
+                    "Content-Type": "multipart/form-data",
+                },
+            });
+
+            const { success, user_data } = response.data;
+
+            if (success) {
+                localStorage.setItem("user", JSON.stringify(user_data));
                 navigate("/home");
             } else {
-                alert("Invalid credentials. Try: admin@example.com / admin123");
+                alert("Login failed. Please check your credentials.");
             }
+        } catch (error) {
+            console.error("Login failed:", error);
+            alert("Login failed. Please check your credentials.");
+        } finally {
             setIsLoading(false);
-        }, 1000);
+        }
     };
+
 
     return (
         <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-50 flex items-center justify-center p-4">
@@ -41,49 +59,24 @@ const Login = () => {
 
                     {/* Content */}
                     <div className="px-8 py-8">
-                        {/* Social Login */}
-                        <div className="flex justify-center gap-4 mb-8">
-                            <button className="p-3 border-2 border-slate-200 rounded-xl hover:border-slate-600 hover:bg-slate-50 transition-all duration-200 group">
-                                <Facebook className="w-5 h-5 text-slate-600 group-hover:text-slate-800" />
-                            </button>
-                            <button className="p-3 border-2 border-slate-200 rounded-xl hover:border-slate-600 hover:bg-slate-50 transition-all duration-200 group">
-                                <Twitter className="w-5 h-5 text-slate-600 group-hover:text-slate-800" />
-                            </button>
-                            <button className="p-3 border-2 border-slate-200 rounded-xl hover:border-slate-600 hover:bg-slate-50 transition-all duration-200 group">
-                                <Github className="w-5 h-5 text-slate-600 group-hover:text-slate-800" />
-                            </button>
-                        </div>
-
-                        {/* Divider */}
-                        <div className="relative mb-8">
-                            <div className="absolute inset-0 flex items-center">
-                                <div className="w-full border-t border-slate-200"></div>
-                            </div>
-                            <div className="relative flex justify-center text-sm">
-                                <span className="px-4 bg-white text-slate-500 font-medium">
-                                    Or continue with email
-                                </span>
-                            </div>
-                        </div>
-
                         {/* Login Form */}
                         <div className="space-y-6">
-                            {/* Email Input */}
                             <div>
                                 <label className="block text-sm font-semibold text-slate-700 mb-2">
-                                    Email Address
+                                    Phone Number
                                 </label>
                                 <div className="relative">
                                     <Mail className="absolute left-4 top-1/2 transform -translate-y-1/2 text-slate-400 w-5 h-5" />
                                     <input
-                                        type="email"
-                                        placeholder="Enter your email"
+                                        type="text"
+                                        placeholder="Enter your number"
                                         className="w-full pl-12 pr-4 py-4 border-2 border-slate-200 rounded-xl focus:border-slate-600 focus:outline-none transition-all duration-200 text-slate-700 placeholder-slate-400"
-                                        value={email}
-                                        onChange={(e) => setEmail(e.target.value)}
+                                        value={number}
+                                        onChange={(e) => setNumber(e.target.value)}
                                     />
                                 </div>
                             </div>
+
 
                             {/* Password Input */}
                             <div>
@@ -130,17 +123,6 @@ const Login = () => {
                                 ) : (
                                     "Sign In"
                                 )}
-                            </button>
-                        </div>
-
-                        {/* Switch to Signup */}
-                        <div className="text-center mt-8 pt-6 border-t border-slate-100">
-                            <span className="text-slate-600 text-sm">Don't have an account? </span>
-                            <button
-                                onClick={() => navigate("/signup")}
-                                className="text-slate-800 hover:text-slate-600 font-semibold text-sm transition-colors duration-200"
-                            >
-                                Create Account
                             </button>
                         </div>
                     </div>
