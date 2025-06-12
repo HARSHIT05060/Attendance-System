@@ -936,9 +936,7 @@ const ShiftManagement = () => {
                                             })}
                                         </div>
                                     </td>
-                                    <td className="p-4">
-                                        <span className="text-gray-700">{shift.assignedCount || 0}</span>
-                                    </td>
+                                    <td className="p-4 font-bold text-blue-600">{shift.assignedCount || 0}</td>
                                     <td className="p-4">
                                         <span className="text-gray-500">
                                             {shift.createdAt ? formatDate(shift.createdAt) : '-'}
@@ -997,6 +995,7 @@ const ShiftManagement = () => {
                                         </div>
                                     </td>
                                 </tr>
+
                             ))
                         )}
                     </tbody>
