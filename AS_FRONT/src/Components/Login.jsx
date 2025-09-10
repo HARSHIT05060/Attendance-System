@@ -126,7 +126,7 @@ const Login = () => {
                 <div className="mt-6 p-4 bg-slate-50 rounded-xl border border-slate-200">
                     <p className="text-sm text-slate-700 text-center">
                         <span className="font-semibold text-slate-800">Demo Login:</span><br />
-                        <span className="font-mono text-slate-600">number: 9999999999</span><br />
+                        <span className="font-mono text-slate-600">number: 9898989898</span><br />
                         <span className="font-mono text-slate-600">password: admin123</span>
                     </p>
                 </div>
