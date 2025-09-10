@@ -46,8 +46,8 @@ const Sidebar = () => {
             path: "/shift-management",
             submenu: [
                 { label: 'Schedules', path: '/shift-management' },
-                { label: 'Time Off', path: '/shift/time-off' },
-                { label: 'Rotation', path: '/shift/rotation' }
+                // { label: 'Time Off', path: '/shift/time-off' },
+                // { label: 'Rotation', path: '/shift/rotation' }
             ]
         },
 
@@ -60,12 +60,12 @@ const Sidebar = () => {
             submenu: [
                 { label: 'Leave Application', path: '/leaveapplication' },
                 { label: 'Leave Requests', path: '/leavestatusPage' },
-                { label: 'Holiday Calendar', path: '/holidaycalender' },
-                { label: 'Policy', path: '/leaves/policy' }
+                // { label: 'Holiday Calendar', path: '/holidaycalender' },
+                // { label: 'Policy', path: '/leaves/policy' }
             ]
         },
 
-        { id: 'approval', label: 'Approval Requests', icon: CheckSquare, hasSubmenu: false },
+        // { id: 'approval', label: 'Approval Requests', icon: CheckSquare, hasSubmenu: false },
 
         {
             id: 'payroll',
@@ -77,39 +77,39 @@ const Sidebar = () => {
             submenu: [
                 { label: 'Bulk Attendance', path: '/bulk-attendance' },
                 { label: 'Monthly Payroll', path: '/monthly-payroll' },
-                { label: 'Hourly Payroll', path: '/Hourly-payroll' },
-                { label: 'Finalize Payroll', path: '/Finalize-payroll' },
+                // { label: 'Hourly Payroll', path: '/Hourly-payroll' },
+                // { label: 'Finalize Payroll', path: '/Finalize-payroll' },
             ]
         },
 
-        { id: 'loans', label: 'Loans & Advances', icon: Briefcase, hasSubmenu: false },
+        // { id: 'loans', label: 'Loans & Advances', icon: Briefcase, hasSubmenu: false },
 
-        {
-            id: 'reports',
-            label: 'Reports',
-            icon: BarChart2,
-            hasSubmenu: true,
-            submenu: [
-                { label: 'Attendance', path: '/reports/attendance' },
-                { label: 'Performance', path: '/reports/performance' },
-                { label: 'Financial', path: '/reports/financial' }
-            ]
-        },
+        // {
+        //     id: 'reports',
+        //     label: 'Reports',
+        //     icon: BarChart2,
+        //     hasSubmenu: true,
+        //     submenu: [
+        //         { label: 'Attendance', path: '/reports/attendance' },
+        //         { label: 'Performance', path: '/reports/performance' },
+        //         { label: 'Financial', path: '/reports/financial' }
+        //     ]
+        // },
 
-        { id: 'dynamic', label: 'Dynamic Reports', icon: FileText, hasSubmenu: false },
+        // { id: 'dynamic', label: 'Dynamic Reports', icon: FileText, hasSubmenu: false },
 
-        {
-            id: 'user',
-            label: 'User Management',
-            icon: User,
-            hasSubmenu: true,
-            path: '/usermanage',
-            submenu: [
-                { label: 'Roles', path: '/usermanage' },
-                { label: 'Permissions', path: '/user/permissions' },
-                { label: 'Activity Log', path: '/user/activity-log' }
-            ]
-        },
+        // {
+        //     id: 'user',
+        //     label: 'User Management',
+        //     icon: User,
+        //     hasSubmenu: true,
+        //     path: '/usermanage',
+        //     submenu: [
+        //         { label: 'Roles', path: '/usermanage' },
+        //         { label: 'Permissions', path: '/user/permissions' },
+        //         { label: 'Activity Log', path: '/user/activity-log' }
+        //     ]
+        // },
 
         {
             id: 'configuration',
