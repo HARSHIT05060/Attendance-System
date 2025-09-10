@@ -4,7 +4,7 @@ import Navbar from './Components/Navbar';
 import Sidebar from './Components/Sidebar';
 import Login from "./Components/Login";
 import Home from './Components/Home';
-import api from "./api";
+import api from "./api/axiosInstance";
 import Employee from './pages/Employee/Employee';
 import EmployeeDetail from './pages/Employee/EmployeeDetail';
 import AddEmployee from './pages/Employee/AddEmployee';
