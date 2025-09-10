@@ -1,8 +1,8 @@
 {
     "rewrites": [
         {
-            "source": "/(.*)",
-            "destination": "/"
+            "source": "/api/(.*)",
+            "destination": "https://attendance-system-o1cs.onrender.com/api/$1"
         }
     ]
 }

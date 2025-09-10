@@ -1,21 +1,20 @@
-// axiosInstance.js
+// src/api/axiosInstance.js
 import axios from "axios";
 
 /**
- * Use env vars so dev uses localhost, prod uses your deployed API (HTTPS).
- * In Vercel, set VITE_API_BASE_URL to something like:
- *   https://api.smart-attendance.your-domain.com/api
+ * Keep baseURL ending at /api
+ * Then call endpoints WITHOUT the 'api/' segment.
  */
-const baseURL =
+const apiBase =
     import.meta.env.VITE_API_BASE_URL ||
     (window?.location?.hostname === "localhost"
         ? "http://localhost:5000/api"
-        : "/api"); // optional fallback if you set a proxy/rewrites
+        : "/api");
 
 const api = axios.create({
-    baseURL,
+    baseURL: apiBase,
     timeout: 20000,
-    // withCredentials: true, // enable if you use cookies/sessions
+    // withCredentials: true, // enable only if you actually use cookies
 });
 
 export default api;

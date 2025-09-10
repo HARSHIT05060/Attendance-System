@@ -27,6 +27,7 @@ app.use(cors({
     origin: [
         'http://localhost:5173',
         'https://attendance-system-sooty-gamma.vercel.app',
+        "https://smart-attendance-latest.vercel.app",
     ],
     methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
     credentials: true,
